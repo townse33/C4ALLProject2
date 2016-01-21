@@ -12,7 +12,6 @@ red = (255,0,0)
 green = (0,255,0)
 blue = (0,0,255)
 
-
 #Game Canvas
 display_width = 800
 display_height = 600
@@ -23,15 +22,26 @@ gameDisplay = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption("SNAKEY GAME")
 
 #Time Variable
-FPS = 10
+FPS = 20
 clock = pygame.time.Clock()
 
 #Screen Text
 font = pygame.font.SysFont(None, 25)
+score_font = pygame.font.SysFont(None, 65)
+
+
+"""Snake list draws the snake when eating apple"""
+def snake(block_size, snakeList):
+    for XnY in snakeList:        
+        pygame.draw.rect(gameDisplay, black, [XnY[0],XnY[1],block_size,block_size])
 
 def message_to_screen(msg, colour):
     screen_text = font.render(msg, True, colour)
     gameDisplay.blit(screen_text, [display_width/2, display_height/2])
+
+def score_message(msg, colour):
+    screen_text = score_font.render(msg, True, colour)
+    gameDisplay.blit(screen_text, [display_width-display_width, display_height-100])
 
 
 #GameLoop Function
@@ -46,21 +56,30 @@ def gameLoop():
     lead_x = display_width/2
     lead_y = display_height/2
 
+    #Snake Variables
+    snakeList = []
+    snakeLength = 1
+
     #Moving Variables
     lead_x_change = 0
     lead_y_change = 0
     movement_speed = 10
 
     #Apple Generator
-    randAppleX = random.randrange(0,int(display_width-(27+block_size)),block_size)
-    randAppleY = random.randrange(0,int(display_height-(27+block_size)), block_size)
+    randAppleX = random.randrange(0,int(display_width-(block_size)),block_size)
+    randAppleY = random.randrange(0,int(display_height-(block_size)), block_size)
+
+    #Score Variable
+    global score
+    score = 0
     
     #Game Loop - While gameExit = False
     while not gameExit:
         #Do this when user dies
         while gameOver == True:
             gameDisplay.fill(white)
-            message_to_screen("Game Over, press C to Play again or Q to quit", red)
+            message_to_screen("Game Over, press C to Play again or Q to quit", (0,0,0))
+            score_message("Your Final Score was: " + str(score),(0,0,0))
             pygame.display.update()
 
             #Gets users input and follows the correct actions
@@ -130,14 +149,33 @@ def gameLoop():
         pygame.draw.rect(gameDisplay,black, [0,0,15,600])   #left
         pygame.draw.rect(gameDisplay,black, [785,0,15,600]) #right
         pygame.draw.rect(gameDisplay,black, [0,585,800,15]) #bottom
+
+  
+        snakeHead = []
+        snakeHead.append(lead_x)    #Append X Coordinate
+        snakeHead.append(lead_y)    #Append Y Coordinate
+        snakeList.append(snakeHead) #Append Coordinates to snakeList
+
+        if len(snakeList) > snakeLength:
+            del snakeList[0]
+
+        for eachSegment in snakeList[:-1]:
+            if eachSegment == snakeHead:
+                gameOver = True
+        
+        snake(block_size, snakeList)#Calling the Snake function to enlarge the snake
         
         pygame.display.update()
 
         #Overlap handling
         if lead_x == randAppleX and lead_y == randAppleY:
             print("nom nom nom")
-            randAppleX = random.randrange(0,int(display_width-(27+block_size)),block_size)
-            randAppleY = random.randrange(0,int(display_height-(27+block_size)), block_size)
+            randAppleX = random.randrange(0,int(display_width-(29+block_size)),block_size)
+            randAppleY = random.randrange(0,int(display_height-(29+block_size)), block_size)
+            snakeLength += 1#Everytime the snake eats the apple,
+                            #length of the snake increases
+            score += 10
+                                
 
 
         clock.tick(FPS)
