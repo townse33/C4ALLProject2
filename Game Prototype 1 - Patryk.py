@@ -66,8 +66,8 @@ def gameLoop():
     movement_speed = 10
 
     #Apple Generator
-    randAppleX = random.randrange(0,int(display_width-(block_size)),block_size)
-    randAppleY = random.randrange(0,int(display_height-(block_size)), block_size)
+    randAppleX = random.randrange(0,int(display_width),block_size)
+    randAppleY = random.randrange(0,int(display_height), block_size)
 
     #Score Variable
     global score
@@ -120,8 +120,7 @@ def gameLoop():
                     lead_x_change = 0
 
         #Game Over When you touch the borders
-        if lead_x > (display_width-27) or lead_x < 18 \
-           or lead_y > (display_height-27) or lead_y < 18:
+        if lead_x > (display_width) or lead_y > (display_height):
             gameOver = True
                      
 
@@ -144,12 +143,6 @@ def gameLoop():
         #Snake
         pygame.draw.rect(gameDisplay, black, [lead_x,lead_y,block_size,block_size])
 
-        #Borders
-        pygame.draw.rect(gameDisplay,black, [0,0,800,15])   #top
-        pygame.draw.rect(gameDisplay,black, [0,0,15,600])   #left
-        pygame.draw.rect(gameDisplay,black, [785,0,15,600]) #right
-        pygame.draw.rect(gameDisplay,black, [0,585,800,15]) #bottom
-
   
         snakeHead = []
         snakeHead.append(lead_x)    #Append X Coordinate
@@ -169,7 +162,6 @@ def gameLoop():
 
         #Overlap handling
         if lead_x == randAppleX and lead_y == randAppleY:
-            print("nom nom nom")
             randAppleX = random.randrange(0,int(display_width-(29+block_size)),block_size)
             randAppleY = random.randrange(0,int(display_height-(29+block_size)), block_size)
             snakeLength += 1#Everytime the snake eats the apple,
