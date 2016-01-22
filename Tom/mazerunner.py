@@ -37,8 +37,9 @@ class Player(pygame.sprite.Sprite):
             super().__init__()
 
             #set height, width
-            self.image = pygame.Surface([15, 15])
-            self.image.fill(WHITE)
+            self.image = pygame.image.load("stand_down.png")
+            self.image = self.image.convert_alpha()
+            
 
             #make top-left corner the passed-in location
             self.rect = self.image.get_rect()
@@ -100,7 +101,7 @@ class Room1(Room):
                  [780, 350, 20, 250, WHITE],
                  [20, 0, 760, 20, WHITE],
                  [20, 580, 760, 20, WHITE],
-                 [390, 80, 20, 500, BLUE]
+                 [390, 130, 20, 450, BLUE]
                  ]
 
         #loop through list, create wall, and add to list
@@ -121,8 +122,8 @@ class Room2(Room):
                  [780, 350, 20, 250, RED],
                  [20, 0, 760, 20, RED],
                  [20, 580, 760, 20, RED],
-                 [190, 20, 20, 500, GREEN],
-                 [590, 80, 20, 500, GREEN]
+                 [190, 20, 20, 400, GREEN],
+                 [590, 180, 20, 400, GREEN]
                  ]
 
         #loop through list, create wall, and add to list
@@ -151,7 +152,7 @@ class Room3(Room):
 
         for x in range(100, 800, 100):
             for y in range(50, 451, 300):
-                wall = Wall(x, y, 20, 250, RED)
+                wall = Wall(x, y, 20, 200, RED)
                 self.wall_list.add(wall)
 
 def main():
@@ -190,7 +191,7 @@ def main():
     done = False
 
     while not done:
-        #event processing
+        #keyboard activity processing
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -205,6 +206,8 @@ def main():
                 if event.key == pygame.K_DOWN:
                     player.changespeed(0, 5)
 
+            #evens it out so the current location will be (0,0) after input
+
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     player.changespeed(5,0)
@@ -215,7 +218,7 @@ def main():
                 if event.key == pygame.K_DOWN:
                     player.changespeed(0, -5)
 
-        #game logic
+        #changing room based on location on screen
 
         player.move(current_room.wall_list)
 
