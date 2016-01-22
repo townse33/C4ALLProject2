@@ -120,7 +120,8 @@ def gameLoop():
                     lead_x_change = 0
 
         #Game Over When you touch the borders
-        if lead_x > (display_width) or lead_y > (display_height):
+        if lead_x > (display_width-snakeLength) or lead_x < (0) or \
+           lead_y > (display_height-snakeLength) or lead_y < (0):
             gameOver = True
                      
 
