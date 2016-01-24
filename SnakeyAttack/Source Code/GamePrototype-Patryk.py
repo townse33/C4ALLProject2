@@ -36,8 +36,9 @@ def snake(block_size, snakeList):
         pygame.draw.rect(gameDisplay, black, [XnY[0],XnY[1],block_size,block_size])
 
 def message_to_screen(msg, colour):
-    screen_text = font.render(msg, True, colour)
-    gameDisplay.blit(screen_text, [display_width/2, display_height/2])
+#    screen_text = font.render(msg, True, colour)
+#    gameDisplay.blit(screen_text, [display_width/2, display_height/2])
+    textSurf, textRect
 
 def score_message(msg, colour):
     screen_text = score_font.render(msg, True, colour)
@@ -51,6 +52,7 @@ def gameLoop():
     gameExit = False
     gameOver = False
     block_size = 10
+    apple_thickness = 15
 
     #Position variables
     lead_x = display_width/2
@@ -123,7 +125,7 @@ def gameLoop():
         if lead_x > (display_width-snakeLength) or lead_x < (0) or \
            lead_y > (display_height-snakeLength) or lead_y < (0):
             gameOver = True
-                     
+
 
             """If you want the object to stop moving when KEY IS UP"""
             #if event.type == pygame.KEYUP:
@@ -140,7 +142,7 @@ def gameLoop():
         
         #Draws Rectangle
         #Apple
-        pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, block_size, block_size])
+        pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, apple_thickness, apple_thickness])
         #Snake
         pygame.draw.rect(gameDisplay, black, [lead_x,lead_y,block_size,block_size])
 
@@ -162,12 +164,24 @@ def gameLoop():
         pygame.display.update()
 
         #Overlap handling
-        if lead_x == randAppleX and lead_y == randAppleY:
-            randAppleX = random.randrange(0,int(display_width-(29+block_size)),block_size)
-            randAppleY = random.randrange(0,int(display_height-(29+block_size)), block_size)
-            snakeLength += 1#Everytime the snake eats the apple,
+#        if lead_x == randAppleX and lead_y == randAppleY:
+#            randAppleX = random.randrange(0,int(display_width-(29+block_size)),block_size)
+#            randAppleY = random.randrange(0,int(display_height-(29+block_size)), block_size)
+#            snakeLength += 1#Everytime the snake eats the apple,
                             #length of the snake increases
-            score += 10
+#            score += 10
+
+        #Overlap handling v1.1 - efficient for different object sizes
+        if lead_x > randAppleX and lead_x < randAppleX+apple_thickness or \
+           lead_x + block_size > randAppleX and lead_x + block_size < randAppleX + apple_thickness:
+            if lead_y > randAppleY and lead_y < randAppleY+apple_thickness or \
+               lead_y+block_size > randAppleY and lead_y < randAppleY+block_size:
+                randAppleX = random.randrange(0,int(display_width-block_size),block_size)
+                randAppleY = random.randrange(0,int(display_height-block_size), block_size)
+                snakeLength += 1#Everytime the snake eats the apple,
+                            #length of the snake increases
+                score += 10
+
                                 
 
 
