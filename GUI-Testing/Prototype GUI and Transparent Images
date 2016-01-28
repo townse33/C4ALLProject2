@@ -1,0 +1,19 @@
+import pygame
+pygame.init()
+
+grey = (167, 174, 182)
+gameDisplay = pygame.display.set_mode((800, 600))
+backImg = pygame.image.load("background.png")
+backImg = pygame.transform.scale(backImg, (800, 600))
+
+# background image
+gameDisplay.blit(backImg, (0, 0))
+
+# drawing status bar and <tab> menu
+pygame.draw.rect(gameDisplay, grey, (0, (600 - 50), 800 ,50), 0)
+#pygame.draw.rect(gameDisplay, grey, ((800 - 180), 0, 180, 600), 0)
+
+# transparent shape
+rect = pygame.Surface((180,600), pygame.SRCALPHA, 32)
+rect.fill((23, 100, 255, 50))
+gameDisplay.blit(rect, (620,0))
