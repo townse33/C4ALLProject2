@@ -27,49 +27,57 @@ class spaceShip:
 
     def __init__(self, display_width, display_height):
 
-        self.spaceShip = spaceShip
-
         spaceShip = pygame.image.load("spaceship.png")
-        gameDisplay.blit(spaceShip, (600,100))
 
-def gameLoop():
+        #store ship image dimensions
+        shipW, shipH = spaceShip.get_size()
 
-    #Game states
-    gameExit = False
-    gameOver = False
+        #centre ship by subtracting half ship size from given dimensions
+        gameDisplay.blit(spaceShip, (display_width-shipW*0.5,display_height-shipH*0.5))
+    
 
-    #Position variables
-    lead_x = display_width/2
-    lead_y = display_height/2
+#Game states
+gameExit = False
+gameOver = False
 
-    while not gameExit:
-        while gameOver == True:
-            print("GameOver")
-            gameDisplay.fill(black)
-            pygame.display.update()
+#Position variables
+lead_x = display_width/2
+lead_y = display_height/2
 
-            for event in pygame.event.get():
-                if event.type == pygame.K_q:
-                    gameExit = True
-                    gameOver = False
-                elif event.type == pygame.K_c:
-                    gameLoop()
+
+while not gameExit:
+    
+    if gameOver == True:
+        
+        print("GameOver")
+        gameExit = True
+        
+
+    for event in pygame.event.get():
+        if event.type == pygame.K_q:
+                gameOver = True
+
+        #Allows a user to close the window using the close button
+        if event.type == pygame.QUIT:
+                gameOver = True
     
 
     gameDisplay.fill(black)
 
-    player = spaceShip(display_width, display_height)
+    #Create player object, currently giving half window dimensions as arguments
+    player = spaceShip(lead_x, lead_y)
 
     pygame.display.update()
 
+    #Clock ticks to run at FPS
+    clock.tick(FPS)
+
+#Close window, end game
+pygame.quit()
 
 
-    #Un-Init Game
-    pygame.quit()
-    #Quit Python
-    quit()
-    
-                    
+
+                
             
     
     
