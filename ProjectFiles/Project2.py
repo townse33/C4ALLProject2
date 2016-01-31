@@ -23,9 +23,14 @@ pygame.display.set_caption("Whatever its called")
 FPS = 30
 clock = pygame.time.Clock()
 
-#SpaceShip
-spaceShip = pygame.image.load("spaceship.png")
-gameDisplay.blit(spaceShip, (600,100))
+class spaceShip:
+
+    def __init__(self, display_width, display_height):
+
+        self.spaceShip = spaceShip
+
+        spaceShip = pygame.image.load("spaceship.png")
+        gameDisplay.blit(spaceShip, (600,100))
 
 def gameLoop():
 
@@ -49,9 +54,11 @@ def gameLoop():
                     gameOver = False
                 elif event.type == pygame.K_c:
                     gameLoop()
-
+    
 
     gameDisplay.fill(black)
+
+    player = spaceShip(display_width, display_height)
 
     pygame.display.update()
 
