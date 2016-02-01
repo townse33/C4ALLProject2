@@ -122,7 +122,7 @@ scrPos_y = display_height/2
 #init player
 player = Ship(scrPos_x, scrPos_y)
 
-other = NotAShip(500,300,"earth.jpg")
+other = NotAShip(500,300,"earth.png")
 
 while not gameExit:
     
