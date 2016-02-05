@@ -30,8 +30,8 @@ universe = []
 inMemory = []
 memLimit = 50 #How many objects to leave in memory
 
-texX = 0
-texY = 0
+texX = 0 #Player X position variable for text, for controlled updating
+texY = 0 #Player Y position for text
 
 class Ship:
         """This class deals with player controlled movement"""
@@ -181,9 +181,9 @@ scrPos_y = display_height/2
 #init player
 player = Ship(scrPos_x, scrPos_y)
 
-other = NotAShip(250,250,"earth.jpg",0.4)
+other = NotAShip(250,250,"earth.jpg",0.4) #Places an Earth object
 
-other2 = NotAShip(750,750,"mars.jpg",0.3)
+other2 = NotAShip(750,750,"mars.jpg",0.3) #Places a Mars object
 
 while not gameExit:
     
@@ -219,21 +219,21 @@ while not gameExit:
     #Undraw objects with black, call all update methods for objects
     gameDisplay.fill(black)
 
-    if len(inMemory) > memLimit:
+    if len(inMemory) > memLimit: #Check if memory limit exceeded, removed earliest entry in memory list if so
                 inMemory[0].inMem = False
                 inMemory[0].remove()
 
-    for planet in inMemory:
+    for planet in inMemory: #Update all objects in memory
             planet.update()
 
-    for planet in universe:
+    for planet in universe: #Display any unloaded planet if within distance criteria and is not already in memory
             if planet.disX < display_width*1.5 and planet.disX < display_width*-1.5 and planet.disY > display_height*1.5 and planet.disY < display_height*-1.5 and planet.inMem == False:
                     planet.inMem = True
                     inMemory += planet
 
-    player.update()
+    player.update() #Update player object
 
-    font = pygame.font.Font("trench.otf", 36)
+    font = pygame.font.Font("trench.otf", 36) #Defines sci-fi font from external file
 
 
     #Intentionally slow down text updates, it is very distracting and hard to read when they are updated once per frame
@@ -241,17 +241,18 @@ while not gameExit:
             texY = player.posY
             texX = player.posX
             
-    statBar = pygame.Surface((display_width,36))
-    statBar.set_alpha(50)                
-    statBar.fill((50,100,255))           
-    gameDisplay.blit(statBar, (0,display_height-36))   
+    statBar = pygame.Surface((display_width,36)) #Create a stats GUI bar as a surface
+    statBar.set_alpha(50) #Make bar partly transparent                
+    statBar.fill((50,100,255)) #Colour bar blue           
+    gameDisplay.blit(statBar, (0,display_height-36)) #Render GUI bar at bottom of screen   
     
-    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) , 1, (100, 255, 150))
+    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) , 1, (100, 255, 150)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
-    textRect.centerx = (math.floor(display_width*0.5))
+    textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
     textRect.centery = (math.floor(display_height-18))
     gameDisplay.blit(text, textRect)
 
+    #Update display
     pygame.display.update()
 
     #Clock ticks to run at FPS
