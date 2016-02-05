@@ -22,11 +22,16 @@ gameDisplay = pygame.display.set_mode((display_width, display_height)) #Initiali
 pygame.display.set_caption("C4 ALL Project 2")
 
 #Time Variables, initialise FPS clock
-FPS = 1000 #One frame = One millisecond
+FPS = 100 #One frame = Ten milliseconds
 clock = pygame.time.Clock()
 
-#Universe object list (for later use)
+#Universe stores all object information, inMemory determines what to load
 universe = []
+inMemory = []
+memLimit = 50 #How many objects to leave in memory
+
+texX = 0
+texY = 0
 
 class Ship:
         """This class deals with player controlled movement"""
@@ -37,8 +42,10 @@ class Ship:
             
             self.dir = 0 #Direction of ship in degrees, taken from a north bearing
             self.rot = 0 #Current rotation amount
-            self.accX = 0 #X position of player on map
-            self.accY = 0 #Y position of player on map
+            self.posX = 0 #X position of player on map
+            self.posY = 0 #Y position of player on map
+            self.accX = 0 #X acceleration of player
+            self.accY = 0 #Y acceleration of player
             self.dW = display_width #Screen width
             self.dH = display_height #Screen height
 
@@ -71,6 +78,9 @@ class Ship:
 
             gameDisplay.blit(Ship, (self.dW-spriteW*0.5,self.dH-spriteH*0.5))
 
+            self.posX +=self.accX
+            self.posY +=self.accY
+
         def rotL(self):
             self.rot = 1 #Rotate anticlockwise 1 degree per frame
         def rotR(self):
@@ -86,33 +96,35 @@ class NotAShip:
 
     def __init__(self, posX, posY, img, GM):
 
-        Object = pygame.image.load(img) #This time, we take an image as a string as a parameter too
+        global universe, inMemory
 
+        Object = pygame.image.load(img) #This time, we take an image as a string as a parameter too
 
         self.sW, self.sH = Object.get_size()
 
         self.posX = posX
         self.posY = posY
-        self.scrX = posX + 5*self.sW/6 #Centering only affects an object's initial screen position so this is done before the blit, multipliers to compensate for pygame's bad centering
-        self.scrY = posY + 2*self.sH/3
+        self.disX = posX + 5*self.sW/6 #Centering only affects an object's initial screen position so this is done before the blit, multipliers to compensate for pygame's bad centering
+        self.disY = posY + 2*self.sH/3
         self.img = img #We maintain the image path as an attribute so it need only be provided once
-        self.GM = GM*500 #Gravitational constant
+        self.GM = GM*1000 #Gravitational constant
+        self.inMem = True #Planet starts in memory
 
+        gameDisplay.blit(Object, (self.disX,self.disY))
 
-        gameDisplay.blit(Object, (self.scrX,self.scrY))
+        universe.append(self)
+        inMemory.append(self)
 
     
     def update(self):
 
-        self.scrX += -player.accX #Evaluate difference in object to player position on the screen
-        self.scrY += -player.accY
+        self.disX += -player.accX #Evaluate difference in object to player position on the screen
+        self.disY += -player.accY
 
         Object = pygame.image.load(self.img)
 
-        gameDisplay.blit(Object, (math.floor(self.scrX),math.floor(self.scrY))) #We use floor division as we cannot have fractional pixels
-
-        self.dxPlayer = -1*(self.scrX - 5*self.sW/6) #X difference in player/object position
-        self.dyPlayer = 1*(self.scrY - 2*self.sH/3) #Y difference in player/object position
+        self.dxPlayer = -(self.disX - 5*self.sW/6) #X difference in player/object position
+        self.dyPlayer = self.disY - 2*self.sH/3 #Y difference in player/object position
         self.disPlayer = math.sqrt(self.dxPlayer**2+self.dyPlayer**2) #Pythagoras Theorem used to calculate distance between object and player
 
         #Gravity constraints to prevent unnecssary calculations or to prevent ship getting trapped on planet
@@ -154,18 +166,8 @@ class NotAShip:
                 player.accX += -deltaD*math.sin(self.dirPlayer) #Sine rule to find X acceleration change
                 player.accY += deltaD*math.sin(0.5*math.pi-self.dirPlayer) #Sine rule to find Y acceleration change
 
-                #Limit acceleration to 2 pixels per millisecond (WARNING: unpredictable behaviour occurs if this is removed!)
-
-                accLimit = 2 #Define acceleration limit
-                
-                if player.accX > accLimit:
-                        player.accX=accLimit
-                if player.accY > accLimit: 
-                        player.accY=accLimit
-                if player.accX < -accLimit:
-                        player.accX=-accLimit
-                if player.accY < -accLimit:
-                        player.accY=-accLimit
+        gameDisplay.blit(Object, (math.floor(self.disX),math.floor(self.disY))) #We use floor division as we cannot have fractional pixels
+        
 
 
 #Game states
@@ -180,6 +182,8 @@ scrPos_y = display_height/2
 player = Ship(scrPos_x, scrPos_y)
 
 other = NotAShip(250,250,"earth.jpg",0.4)
+
+other2 = NotAShip(750,750,"mars.jpg",0.3)
 
 while not gameExit:
     
@@ -215,9 +219,38 @@ while not gameExit:
     #Undraw objects with black, call all update methods for objects
     gameDisplay.fill(black)
 
-    other.update()
+    if len(inMemory) > memLimit:
+                inMemory[0].inMem = False
+                inMemory[0].remove()
+
+    for planet in inMemory:
+            planet.update()
+
+    for planet in universe:
+            if planet.disX < display_width*1.5 and planet.disX < display_width*-1.5 and planet.disY > display_height*1.5 and planet.disY < display_height*-1.5 and planet.inMem == False:
+                    planet.inMem = True
+                    inMemory += planet
 
     player.update()
+
+    font = pygame.font.Font("trench.otf", 36)
+
+
+    #Intentionally slow down text updates, it is very distracting and hard to read when they are updated once per frame
+    if pygame.time.get_ticks() % 10 == 0:
+            texY = player.posY
+            texX = player.posX
+            
+    statBar = pygame.Surface((display_width,36))
+    statBar.set_alpha(50)                
+    statBar.fill((50,100,255))           
+    gameDisplay.blit(statBar, (0,display_height-36))   
+    
+    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) , 1, (100, 255, 150))
+    textRect = text.get_rect()
+    textRect.centerx = (math.floor(display_width*0.5))
+    textRect.centery = (math.floor(display_height-18))
+    gameDisplay.blit(text, textRect)
 
     pygame.display.update()
 
