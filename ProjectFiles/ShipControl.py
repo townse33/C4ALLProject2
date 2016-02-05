@@ -22,7 +22,7 @@ gameDisplay = pygame.display.set_mode((display_width, display_height)) #Initiali
 pygame.display.set_caption("C4 ALL Project 2")
 
 #Time Variables, initialise FPS clock
-FPS = 60
+FPS = 1000 #One frame = One millisecond
 clock = pygame.time.Clock()
 
 #Universe object list (for later use)
@@ -37,8 +37,8 @@ class Ship:
             
             self.dir = 0 #Direction of ship in degrees, taken from a north bearing
             self.rot = 0 #Current rotation amount
-            self.posX = 0 #X position of player on map
-            self.posY = 0 #Y position of player on map
+            self.accX = 0 #X position of player on map
+            self.accY = 0 #Y position of player on map
             self.dW = display_width #Screen width
             self.dH = display_height #Screen height
 
@@ -61,8 +61,8 @@ class Ship:
             
             if self.adv == True:
                 
-                self.posX += -math.sin(math.radians(self.dir))*0.025 #Sine rule to find change in player X position
-                self.posY += -math.sin(math.radians(90-self.dir))*0.025 #Sine rule to find change in player Y position
+                self.accX += -math.sin(math.radians(self.dir))*0.003 #Sine rule to find change in player X acceleration
+                self.accY += -math.sin(math.radians(90-self.dir))*0.003 #Sine rule to find change in player Y acceleration
 
             #Rotate ship to current direction
             Ship = pygame.transform.rotate(pygame.image.load("spaceship.png"),self.dir)
@@ -72,9 +72,9 @@ class Ship:
             gameDisplay.blit(Ship, (self.dW-spriteW*0.5,self.dH-spriteH*0.5))
 
         def rotL(self):
-            self.rot = 2 #Rotate anticlockwise 2 degrees per frame
+            self.rot = 1 #Rotate anticlockwise 1 degree per frame
         def rotR(self):
-            self.rot = -2 #Rotate clockwise 2 degrees per frame
+            self.rot = -1 #Rotate clockwise 1 degree per frame
             
         def fwd(self):
             self.adv = True 
@@ -84,7 +84,7 @@ class Ship:
 class NotAShip:
     """Placeholder class used for objects that are not the player, i.e. ones that need scrolling"""
 
-    def __init__(self, posX, posY, img):
+    def __init__(self, posX, posY, img, GM):
 
         Object = pygame.image.load(img) #This time, we take an image as a string as a parameter too
 
@@ -93,9 +93,10 @@ class NotAShip:
 
         self.posX = posX
         self.posY = posY
-        self.scrX = posX-self.sW*0.5 #Centering only affects an object's initial screen position so this is done before the blit
-        self.scrY = posY-self.sH*0.5
+        self.scrX = posX + 5*self.sW/6 #Centering only affects an object's initial screen position so this is done before the blit, multipliers to compensate for pygame's bad centering
+        self.scrY = posY + 2*self.sH/3
         self.img = img #We maintain the image path as an attribute so it need only be provided once
+        self.GM = GM*500 #Gravitational constant
 
 
         gameDisplay.blit(Object, (self.scrX,self.scrY))
@@ -103,12 +104,68 @@ class NotAShip:
     
     def update(self):
 
-        self.scrX += -player.posX #Evaluate difference in object to player position on the screen
-        self.scrY += -player.posY
+        self.scrX += -player.accX #Evaluate difference in object to player position on the screen
+        self.scrY += -player.accY
 
         Object = pygame.image.load(self.img)
 
         gameDisplay.blit(Object, (math.floor(self.scrX),math.floor(self.scrY))) #We use floor division as we cannot have fractional pixels
+
+        self.dxPlayer = -1*(self.scrX - 5*self.sW/6) #X difference in player/object position
+        self.dyPlayer = 1*(self.scrY - 2*self.sH/3) #Y difference in player/object position
+        self.disPlayer = math.sqrt(self.dxPlayer**2+self.dyPlayer**2) #Pythagoras Theorem used to calculate distance between object and player
+
+        #Gravity constraints to prevent unnecssary calculations or to prevent ship getting trapped on planet
+        if self.disPlayer > 0.5*self.sW and self.disPlayer < 3*self.sW:
+
+                if self.dxPlayer < 0: #Is X distance to object negative?
+                        self.negX = True
+                else:
+                        self.negX = False
+                        
+                if self.dyPlayer < 0: #Is Y distance to object negative?
+                        self.negY = True
+                else:
+                        self.negY = False
+
+                """Here we need to establish the bearing from the object to the ship, to do this, we find which quadrant around the object the ship is in, and
+                   use the necessary parameters to find the angle using trig"""
+                
+                if not (self.negX or self.negY): #In First Quadrant?
+                        m = 1
+                        c = 0
+                        a = self.dyPlayer
+                        
+                elif not(self.negY): #In Second or Third Quadrant?
+                        m = -1
+                        c = 2 * math.pi
+                        a = self.dyPlayer
+                        
+                else: #If none of the above, must be fourth quadrant
+                        m = 1
+                        c = 0.5 * math.pi
+                        a = self.dxPlayer
+                        
+                
+                self.dirPlayer = c + m*((math.acos(a/self.disPlayer)) % (2*math.pi)) #Arcosine with quadrant parameters to find player direction from object, modulo to get bearing
+
+                deltaD = self.GM/self.disPlayer**2 #Simplified gravity inverse square law, we take force as change in distance, since change in time is handled already
+
+                player.accX += -deltaD*math.sin(self.dirPlayer) #Sine rule to find X acceleration change
+                player.accY += deltaD*math.sin(0.5*math.pi-self.dirPlayer) #Sine rule to find Y acceleration change
+
+                #Limit acceleration to 2 pixels per millisecond (WARNING: unpredictable behaviour occurs if this is removed!)
+
+                accLimit = 2 #Define acceleration limit
+                
+                if player.accX > accLimit:
+                        player.accX=accLimit
+                if player.accY > accLimit: 
+                        player.accY=accLimit
+                if player.accX < -accLimit:
+                        player.accX=-accLimit
+                if player.accY < -accLimit:
+                        player.accY=-accLimit
 
 
 #Game states
@@ -122,7 +179,7 @@ scrPos_y = display_height/2
 #init player
 player = Ship(scrPos_x, scrPos_y)
 
-other = NotAShip(500,300,"earth.jpg")
+other = NotAShip(250,250,"earth.jpg",0.4)
 
 while not gameExit:
     
