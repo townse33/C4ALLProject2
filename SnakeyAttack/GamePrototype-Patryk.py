@@ -50,7 +50,7 @@ def gameLoop():
     #Constant Variable
     gameExit = False
     gameOver = False
-    block_size = 10
+    block_size = 20
 
     #Position variables
     lead_x = display_width/2

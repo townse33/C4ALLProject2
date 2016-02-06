@@ -29,16 +29,20 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 25)
 score_font = pygame.font.SysFont(None, 65)
 
+img = pygame.image.load("SnakeHead.png")
 
 """Snake list draws the snake when eating apple"""
 def snake(block_size, snakeList):
-    for XnY in snakeList:        
-        pygame.draw.rect(gameDisplay, black, [XnY[0],XnY[1],block_size,block_size])
+
+    gameDisplay.blit(img, (snakeList[-1][0], snakeList[-1][1]))
+    
+    for XnY in snakeList[:-1]:        
+        pygame.draw.rect(gameDisplay, green, [XnY[0],XnY[1],block_size,block_size])
 
 def message_to_screen(msg, colour):
-#    screen_text = font.render(msg, True, colour)
-#    gameDisplay.blit(screen_text, [display_width/2, display_height/2])
-    textSurf, textRect
+    screen_text = font.render(msg, True, colour)
+    gameDisplay.blit(screen_text, [display_width/2, display_height/2])
+    
 
 def score_message(msg, colour):
     screen_text = score_font.render(msg, True, colour)
@@ -51,8 +55,8 @@ def gameLoop():
     #Constant Variable
     gameExit = False
     gameOver = False
-    block_size = 10
-    apple_thickness = 15
+    block_size = 20
+    apple_thickness = 20
 
     #Position variables
     lead_x = display_width/2
@@ -144,7 +148,7 @@ def gameLoop():
         #Apple
         pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, apple_thickness, apple_thickness])
         #Snake
-        pygame.draw.rect(gameDisplay, black, [lead_x,lead_y,block_size,block_size])
+        #pygame.draw.rect(gameDisplay, black, [lead_x,lead_y,block_size,block_size])
 
   
         snakeHead = []
