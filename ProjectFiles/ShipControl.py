@@ -16,7 +16,9 @@ blue = (0,0,255)
 display_width = 1200
 display_height = 800
 
-gameDisplay = pygame.display.set_mode((display_width, display_height)) #Initialise pygame window
+winMode = pygame.DOUBLEBUF | pygame.HWSURFACE  #pygame.FULLSCREEN #Enable hardware acceleration, remove first comment for fullscreen
+
+gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #Initialise pygame window
 
 #Title and caption
 pygame.display.set_caption("C4 ALL Project 2")
@@ -68,8 +70,8 @@ class Ship:
             
             if self.adv == True:
                 
-                self.accX += -math.sin(math.radians(self.dir))*0.003 #Sine rule to find change in player X acceleration
-                self.accY += -math.sin(math.radians(90-self.dir))*0.003 #Sine rule to find change in player Y acceleration
+                self.accX += -math.sin(math.radians(self.dir))*0.01 #Sine rule to find change in player X acceleration
+                self.accY += -math.sin(math.radians(90-self.dir))*0.01 #Sine rule to find change in player Y acceleration
 
             #Rotate ship to current direction
             Ship = pygame.transform.rotate(pygame.image.load("spaceship.png"),self.dir)
@@ -107,7 +109,7 @@ class NotAShip:
         self.disX = posX + 5*self.sW/6 #Centering only affects an object's initial screen position so this is done before the blit, multipliers to compensate for pygame's bad centering
         self.disY = posY + 2*self.sH/3
         self.img = img #We maintain the image path as an attribute so it need only be provided once
-        self.GM = GM*1000 #Gravitational constant
+        self.GM = GM*2000 #Gravitational constant
         self.inMem = True #Planet starts in memory
 
         gameDisplay.blit(Object, (self.disX,self.disY))
@@ -181,9 +183,9 @@ scrPos_y = display_height/2
 #init player
 player = Ship(scrPos_x, scrPos_y)
 
-other = NotAShip(250,250,"earth.jpg",0.4) #Places an Earth object
-
-other2 = NotAShip(750,750,"mars.jpg",0.3) #Places a Mars object
+Object1 = NotAShip(250,250,"earth.jpg",0.4) #Places an Earth object
+Object2 = NotAShip(1200,1200,"moon.jpg",0.05) #Places a Moon object
+Object3 = NotAShip(-500,-500,"mars.jpg",0.3) #Places a Mars object
 
 while not gameExit:
     
@@ -205,6 +207,8 @@ while not gameExit:
                     player.rotR()
             if event.key == pygame.K_w: #W accelerates the ship
                     player.fwd()
+            if event.key == pygame.K_q: #Quit (useful for fullscreen)
+                    gameOver = True
         if event.type == pygame.KEYUP: #When key is released
             if event.key == pygame.K_a or event.key == pygame.K_d: #Stop rotation if A or D was released
                     player.rot = 0
