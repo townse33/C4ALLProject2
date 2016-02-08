@@ -1,0 +1,7 @@
+Credits for resources used in project:
+
+Earth Picture, "earth.jpg", NASA 1972, http://nssdc.gsfc.nasa.gov/imgcat/html/object_page/a17_h_148_22727.html
+Mars Picture, "mars.jpg", Astrogeology Science Center 2013, http://astrogeology.usgs.gov/search/details/Mars/Viking/schiaparelli_enhanced/tif
+Moon Picture, "moon.jpg", Gregory H. Revera 2010, https://en.wikipedia.org/wiki/Moon#/media/File:FullMoon2010.jpg
+
+Trench Font, "trench.otf", NimaVisual , http://www.1001fonts.com/trench-font.html
