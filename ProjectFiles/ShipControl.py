@@ -34,6 +34,7 @@ memLimit = 50 #How many objects to leave in memory
 
 texX = 0 #Player X position variable for text, for controlled updating
 texY = 0 #Player Y position for text
+texSpeed = 0 #Player speed for text
 
 class Ship:
         """This class deals with player controlled movement"""
@@ -130,7 +131,7 @@ class NotAShip:
         self.disPlayer = math.sqrt(self.dxPlayer**2+self.dyPlayer**2) #Pythagoras Theorem used to calculate distance between object and player
 
         #Gravity constraints to prevent unnecssary calculations or to prevent ship getting trapped on planet
-        if self.disPlayer > 0.5*self.sW and self.disPlayer < 3*self.sW:
+        if self.disPlayer > 0.25*self.sW and self.disPlayer < 1000*self.sW:
 
                 if self.dxPlayer < 0: #Is X distance to object negative?
                         self.negX = True
@@ -244,13 +245,14 @@ while not gameExit:
     if pygame.time.get_ticks() % 10 == 0:
             texY = player.posY
             texX = player.posX
+            texSpeed = round(40*math.sqrt((player.accX)**2+(player.accY)**2),1)
             
     statBar = pygame.Surface((display_width,36)) #Create a stats GUI bar as a surface
-    statBar.set_alpha(50) #Make bar partly transparent                
-    statBar.fill((50,100,255)) #Colour bar blue           
+    statBar.set_alpha(200) #Make bar partly transparent                
+    statBar.fill((20,50,150)) #Colour bar blue           
     gameDisplay.blit(statBar, (0,display_height-36)) #Render GUI bar at bottom of screen   
     
-    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) , 1, (100, 255, 150)) #Render GUI text, floor division used for variables for readability
+    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        SPEED: " + str(texSpeed) + "km/s" , 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
     textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
     textRect.centery = (math.floor(display_height-18))
