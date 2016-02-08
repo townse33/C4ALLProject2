@@ -1,23 +1,42 @@
-# 0 = empty, 1 = wall, 2 = ending point, 3 = visited
-grid = [[0, 9, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 9, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 9, 0, 9, 0, 0],
-        [0, 0, 0, 0, 0, 0]]
+# Variable definitions
 
+global cL
+global dL
+global nL
+
+
+cL = [0, 0]
+dL = [0, 0]
+nL = ""
+pL = []
+
+
+
+# 0 = empty, 9 = wall, 2 = ending point, 3 = visited
+grid = [[0, 9, 9, 9, 9, 9],
+        [0, 9, 9, 9, 9, 9],
+        [0, 0, 0, 0, 9, 9],
+        [9, 9, 9, 0, 0, 9],
+        [9, 9, 9, 9, 0, 9],
+        [9, 9, 9, 9, 0, 0]]
+
+for i in range(0, len(grid)):
+    print(grid[i])
+print("")
 # 0= 0nchecked, 1-8 = available  moves from location, ? = wall
-check = [[0, 9, 0, 0, 0, 0],
+check =[[0, 9, 0, 0, 0, 0],
+        [0, 9, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
-        [0, 0, 9, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
+        [9, 9, 0, 9, 0, 0],
         [0, 9, 0, 9, 0, 0],
         [0, 0, 0, 0, 0, 0]]
 
-   
+# Function creations
 def incrementor(x, y):
     """Will increment the position in the copy of the grid
-    with how many locations there are to travel to from that position"""
+    with how many locations there are to travel to from that position
+
+    eg, a square with 3 positions it can travel to will be '3'"""
 
     if grid[x][y] == 0:
         if x + 1 <= 5:
@@ -31,18 +50,120 @@ def incrementor(x, y):
         if y + 1 <= 5:
             if grid[x][y + 1] == 0:
                 check[x][y] += 1
-
         
         if y - 1 >= 0: #checks if y goes off of top of map
             if grid[x][y - 1] == 0:
                 check[x][y] += 1
-    
+
+    if grid[x][y] != 0:
+        check[x][y] = 9
 
 def checkCheck():
+    """This goes over the copy of the map and runs the incrementor
+    function for every map reference"""
     for x in range(0, len(grid)):
         for y in range(0, len(grid[0])):
             incrementor(x, y)
 
-
     for i in range(0, len(check)):
             print(check[i])
+
+def findnextstep():
+    """Function will locate the best next location to travel to and return that
+    location"""
+
+    xP = 9
+    xM = 9
+    yP = 9
+    yM = 9
+    
+    if (cL[0] + 1) <= 5: # x+1
+        if check[cL[1]][cL[0] + 1] == 9:
+            xP = 9    
+        else:
+            xP = check[cL[1]][cL[0] + 1]
+
+    if (cL[0] - 1) >= 0: # x-1
+        if check[cL[1]][cL[0] - 1] == 9:
+            xM = 9     
+        else:
+            xM = check[cL[1]][cL[0] - 1]
+
+    if (cL[1] + 1) <= 5: # y+1
+        if check[cL[1] + 1][cL[0]] == 9:
+            yP = 9     
+        else:
+            yP = check[cL[1] + 1][cL[0]]
+
+    if (cL[1] - 1) >= 0: # y-1
+        if check[cL[1] - 1][cL[0]] == 9:
+            yM = 9     
+        else:
+            yM = check[cL[1] - 1][cL[0]]
+    else:
+        nL = "There is no path"
+
+    compare = {}
+    if xP != 9:
+        compare['xP'] = xP
+    if xM != 9:
+        compare['xM'] = xM
+    if yP != 9:
+        compare['yP'] = yP
+    if yM != 9:
+        compare['yM'] = yM
+
+    try:
+        nL = max(compare, key=compare.get)
+
+    except:
+        pass
+        
+    if nL == xP:
+        cL[0] += 1
+    if nL == xM:
+        cL[0] -= 1
+    if nL == yP:
+        cL[1] += 1
+    if nL == yM:
+        cL[1] -= 1   
+    return(nL)
+
+
+
+# main program
+checkCheck()
+slx = input("Enter the start x location: ")
+sly = input("Enter the start y location: ")
+flx = input("Enter the finish x location: ")
+fly = input("Enter the finish y location: ")
+
+while nL != "There is no path":
+    nL = findnextstep()
+    if nL == "xP":
+        cL[0] += 1
+    if nL == "xM":
+        cL[0] -= 1
+    if nL == "yP":
+        cL[1] += 1
+    if nL == "yM":
+        cL[1] -= 1
+    print(cL)
+
+    
+
+    
+
+
+"""
+To DO
+- Make it next location nearer to the destination location
+if difference in X greater than difference in Y
+    if destinationLocationX > currentLocationX and xP can be travelled to, go there.
+    if not, try yP if destinationLocationY > currentLocationY
+otherwise try Y first because will have a larger gap
+- Make it move forward so that it does not go to the previous location unless that
+is the only option
+
+
+"""
