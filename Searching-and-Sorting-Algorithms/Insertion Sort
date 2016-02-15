@@ -1,3 +1,4 @@
+print("Insertion Sort")
 def insertionSort(sortList):
     """Inputs a list and outputs the same list, but in ascending order"""
 
@@ -11,7 +12,7 @@ def insertionSort(sortList):
 
             sortList[pos] = currentvalue
 
-List = [54,26,93,17,77,31,44,55,20]
-print(List)
-insertionSort(List)
-print(List)
+listOne = [53, 75, 42, 96, 86, 12, 4, 9]
+print(listOne)
+insertionSort(listOne)
+print(listOne)
