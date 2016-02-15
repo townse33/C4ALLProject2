@@ -1,1 +1,30 @@
 ECU178 | Semester 2 | ALL Project
+
+Group Number:
+- C4
+
+Group Members:
+- Euan Campbell
+- Jamie Townsend
+- Patryk Orsztynowicz
+- Erik Tonev
+- Conor Flanagan
+- Tom Staite
+
+Program used:
+- Python/Pygame
+
+Game idea:
+- Space exploration, with the main goal to find minerals which have a cost.
+- Minerals can be sold to achieve money.
+- A sorted inventory holds all the minerals currently in posession of the user.
+- Searching algorithm used to find the best route to a location.
+- Sorting algorithm used to sort the inventory.
+
+Roles and Responsibilities
+General Programming
+- Jamie T
+
+Searching and Sorting Algorithms
+- Euan C
+- Patryk O
