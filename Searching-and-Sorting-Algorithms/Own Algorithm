@@ -71,11 +71,13 @@ def checkCheck():
 def findnextstep():
     """Function will locate the best next location to travel to and return that
     location"""
-
+    pL = cL
     xP = 9
     xM = 9
     yP = 9
     yM = 9
+
+    incrementor(cL[0], cL[1])
     
     if (cL[0] + 1) <= 5: # x+1
         if check[cL[1]][cL[0] + 1] == 9:
@@ -132,7 +134,7 @@ def findnextstep():
 
 
 # main program
-checkCheck()
+
 slx = input("Enter the start x location: ")
 sly = input("Enter the start y location: ")
 flx = input("Enter the finish x location: ")
@@ -167,3 +169,8 @@ is the only option
 
 
 """
+    
+
+
+    
+
