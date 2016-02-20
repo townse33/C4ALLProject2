@@ -1,0 +1,22 @@
+itemCost = {"Object1":1, "Object2":5, "Object3":10, "Object4":20, "Object5":17} # Costs of all the items that can be collected
+
+inventory = ["Object2", "Object3"] # Inventory items collected by the user
+money = 0 # Money owned by the user
+
+
+def addToInventory(modList, item):
+    modList.append(item)
+
+def sellInventory(modList, money):
+    """ Will output the amount of money gained from selling all the items
+    as well as removing all the items sold from the inventory """
+    
+    for i in range(len(modList)): # Adds money, using the itemCost dictionary
+        money += itemCost[ modList[i] ]        
+
+    inventory[:] = [] # Clears the inventory, better than iterating over the list
+
+    # Found that iterating over the list caused a problem with List Aliasing
+    # and removing items from the list being iterated over
+    
+    return(money)
