@@ -1,0 +1,36 @@
+#include <iostream>
+#include <array>
+
+using namespace std;
+string result = "It has not been found";
+
+int main()
+{
+    array<int, 7> myArray = {1,2,3,4,5,6,7};
+    int searchValue = 1;
+
+    int first = 0;
+    int last = myArray.size();
+    bool beenFound = false;
+
+    while(first <= last && not beenFound)
+    {
+        int midpoint = (first + last) / 2;
+
+        if(myArray[midpoint] == searchValue)
+        {
+            result = "It has been found";
+            beenFound = true;
+        }
+        else
+        {
+            if(searchValue< myArray[midpoint]){
+                last = midpoint - 1;}
+            else{
+                first = midpoint + 1;}
+        }
+    }
+    cout << result << endl;
+
+    return 0;
+}
