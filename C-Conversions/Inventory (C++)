@@ -1,0 +1,32 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Need to create a dictionary or something here to store prices of items
+
+vector<string> inventory = {"objectTwo", "objectThree"};
+int money = 0;
+
+int addToInventory(string item)
+{
+    inventory.push_back(item);
+    return 0;
+}
+
+int sellInventory()
+{
+    for(int i : inventory)
+    {
+        //need code here to increase the money for all inventory items
+        cout << i << " " << endl;
+    }
+
+    inventory.clear();
+    return money;
+}
+
+int main()
+{
+
+}
