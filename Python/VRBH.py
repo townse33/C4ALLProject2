@@ -152,6 +152,34 @@ class Ship:
         def fwd(self):
             self.adv = True
 
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+
+        def slowDown(self):
+            while event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+                    self.posX = self.posX
+                    self.posY = self.posY
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+                        self.adv = True
+#
+#
+#
+#
+#
+#
+#
+#
+#
+                    
+
         """def reload(self):
             Ship = pygame.image.load("spaceship.png") #Load the sprite image
             self.dW = display_width #Screen width
@@ -180,7 +208,7 @@ class NotAShip:
         self.disX = posX + 5*self.sW/6 #Centering only affects an object's initial screen position so this is done before the blit, multipliers to compensate for pygame's bad centering
         self.disY = posY + 2*self.sH/3
         self.img = img #We maintain the image path as an attribute so it need only be provided once
-        self.GM = GM*2000 #Gravitational constant
+        #self.GM = GM*2000 #Gravitational constant
         self.inMem = True #Planet starts in memory
 
         gameDisplay.blit(Object, (self.disX,self.disY))
@@ -222,7 +250,7 @@ def pauseMenu():
                     quit()
                     
         gameDisplay.fill(white)
-        message_to_screen("Paused, ",
+        message_to_screen("Paused",
                           black)
 
         message_to_screen("Press c to continue or q to quit",
@@ -274,6 +302,18 @@ while not gameExit:
                     player.rotR()
             if event.key == pygame.K_w: #W accelerates the ship
                     player.fwd()
+#
+#
+#
+#
+
+            if event.key == pygame.K_s: #S slows down the ship
+                    player.slowDown()
+#
+#
+#
+#
+
             if event.key == pygame.K_q: #Quit (useful for fullscreen)
                     gameOver = True
             if event.key == pygame.K_p: #P for fullscreen lol
