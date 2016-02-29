@@ -379,7 +379,7 @@ while not gameExit:
 
 
     mergeSort(inventory)
-    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
+    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s", 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
     textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
     textRect.centery = (math.floor(display_height-18))
