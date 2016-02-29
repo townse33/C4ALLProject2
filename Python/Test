@@ -18,9 +18,6 @@ display_height = 800
 
 winMode = pygame.DOUBLEBUF | pygame.HWSURFACE #| pygame.FULLSCREEN #Enable hardware acceleration, remove first comment for fullscreen
 
-#fullscreenToggle = input("Fullscreen? Y/N")
-#if fullscreenToggle=="Y" or fullscreenToggle=="y":
-        #winMode = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.FULLSCREEN
 
 gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #Initialise pygame window
 
@@ -40,6 +37,64 @@ texX = 0 #Player X position variable for text, for controlled updating
 texY = 0 #Player Y position for text
 texSpeed = 0 #Player speed for text
 
+#Inventory setup
+itemCost = {"Object1":1, "Object2":5, "Object3":10, "Object4":20, "Object5":17} # Costs of all the items that can be collected
+
+inventory = ["Object3", "Object2", "Object1"] # Inventory items collected by the user
+money = 0 # Credits owned by the user
+
+
+def addToInventory(modList, item):
+    modList.append(item)
+
+def sellInventory(modList, money):
+    """ Will output the amount of money gained from selling all the items
+    as well as removing all the items sold from the inventory """
+    
+    for i in range(len(modList)): # Adds money, using the itemCost dictionary
+        money += itemCost[ modList[i] ]        
+
+    inventory[:] = [] # Clears the inventory, better than iterating over the list
+
+    # Found that iterating over the list caused a problem with List Aliasing
+    # and removing items from the list being iterated over
+    
+    return(money)
+
+def mergeSort(sortList):
+
+    if len(sortList)>1:
+        middle = len(sortList) // 2
+        left = sortList[:middle]
+        right = sortList[middle:]
+
+        mergeSort(left)
+        mergeSort(right)
+
+        a = 0
+        b = 0
+        c = 0
+        while a < len(left) and b < len(right):
+            if left[a] < right[b]:
+                sortList[c]=left[a]
+                a += 1
+            else:
+                sortList[c]=right[b]
+                b += 1
+            c += 1
+
+        while a < len(left):
+            sortList[c]=left[a]
+            a += 1
+            c += 1
+
+        while b < len(right):
+            sortList[c]=right[b]
+            b += 1
+            c += 1
+
+
+#Class System
 class Ship:
         """This class deals with player controlled movement"""
 
@@ -159,9 +214,12 @@ scrPos_y = display_height/2
 #init player
 player = Ship(scrPos_x, scrPos_y)
 
-Object1 = NotAShip(250,250,"earth.jpg",0.4) #Places an Earth object
-Object2 = NotAShip(1200,1200,"moon.jpg",0.05) #Places a Moon object
+Object1 = NotAShip(0, 0,"earth.jpg",0.4) #Places aobject
+Object2 = NotAShip(600,600,"moon.jpg",0.05) #Places a Moon object
 Object3 = NotAShip(-500,-500,"mars.jpg",0.3) #Places a Mars object
+
+
+
 
 fullscreenStat = False
 
@@ -243,16 +301,30 @@ while not gameExit:
             texY = player.posY
             texX = player.posX
             texSpeed = round(40*math.sqrt((player.accX)**2+(player.accY)**2),1)
-            
+    #stat bar
     statBar = pygame.Surface((display_width,36)) #Create a stats GUI bar as a surface
     statBar.set_alpha(200) #Make bar partly transparent                
     statBar.fill((20,50,150)) #Colour bar blue           
     gameDisplay.blit(statBar, (0,display_height-36)) #Render GUI bar at bottom of screen   
-    
+
+
+    mergeSort(inventory)
     text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
     textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
     textRect.centery = (math.floor(display_height-18))
+    gameDisplay.blit(text, textRect)
+
+    #inventory bar
+    inventoryBar = pygame.Surface((display_width,36)) #Create a stats GUI bar as a surface
+    inventoryBar.set_alpha(200) #Make bar partly transparent                
+    inventoryBar.fill((20,50,150)) #Colour bar blue           
+    gameDisplay.blit(inventoryBar, (0,0)) #Render GUI bar at bottom of screen   
+    
+    text = font.render("Inventory Items (" + str(len(inventory)) + "): " + str(inventory), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
+    textRect = text.get_rect()
+    textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+    textRect.centery = (math.floor(20))
     gameDisplay.blit(text, textRect)
 
     #Update display
