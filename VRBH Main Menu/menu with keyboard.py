@@ -48,6 +48,7 @@ title_font = pygame.font.Font(None, 80)
 #creates game titles
 title = title_font.render("STAR HUNT", True, (255, 255, 255))
 title2 = title_font.render("Keyboard Shortcuts", True, (255, 255, 255))
+title3 = title_font.render("New Game", True, (255, 255, 255))
 #Main Menu Options - calls the 'Option' class with these objects
 option1 = Option("NEW GAME", (515, 350))
 option2 = Option("LEADERBOARDS", (480, 400))
@@ -103,6 +104,26 @@ def shortcutKeys():
         pygame.display.update()
 
 
+def newGame():
+    #main loop
+    loop = True
+    while loop == True:
+        pygame.event.pump() #Internally process pygame event handlers
+        screen.blit(bg,(0, 0)) #Blits background to screen
+        screen.blit(title3, (450, 15)) #Blits title to screen
+        
+
+        pressed = pygame.key.get_pressed() #Variable for when keys are held down
+
+        #if keys are LCTRL and Q then Quit game
+        if pressed[pygame.K_LCTRL] and pressed[pygame.K_q]:
+            loop  = False
+        
+        pygame.display.update()
+
+        
+        
+
 def mainMenu():
     #main loop
     loop = True
@@ -131,7 +152,7 @@ def mainMenu():
                        
                     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: #left mouse button clicked
                         if option1.rect.collidepoint(pygame.mouse.get_pos()) == True: #'new game' clicked on
-                            print("This will start a new game")
+                            newGame()
                         elif option2.rect.collidepoint(pygame.mouse.get_pos()) == True: #'leaderboards' clicked on
                             print(execfile("script2.py"))
                         elif option4.rect.collidepoint(pygame.mouse.get_pos()) == True: #'Keyboard Shortcuts' clicked on

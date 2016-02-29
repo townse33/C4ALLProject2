@@ -1,6 +1,5 @@
 import pygame, sys
 
-
 class Option():
 
     #Variable to store wether text is hovered over or not
@@ -47,6 +46,7 @@ title_font = pygame.font.Font(None, 80)
 
 #creates title
 title = title_font.render("STAR HUNT", True, (255, 255, 255))
+title2 = title_font.render("New Game", True, (255, 255, 255))
 
 #calls the 'Option' class with three objects
 
@@ -56,6 +56,29 @@ option3 = Option("QUIT", (563, 450))
 
 #loads background image and converts it
 bg = pygame.image.load("background.jpg").convert()
+
+
+def newGame():
+    #main loop
+    loop = True
+    while loop == True:
+        pygame.event.pump() #Internally process pygame event handlers
+        screen.blit(bg,(0, 0)) #Blits background to screen
+        screen.blit(title2, (450, 15)) #Blits title to screen
+        
+
+
+        
+        pygame.display.update()
+
+       
+        
+
+
+
+
+
+
 
 def mainMenu():
     #main loop
@@ -72,7 +95,7 @@ def mainMenu():
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if option1.rect.collidepoint(pygame.mouse.get_pos()) == True:
-                            print("(this will start the game)")
+                            newGame()
                         elif option2.rect.collidepoint(pygame.mouse.get_pos()) == True:
                             print(execfile("script2.py"))
                         else:
