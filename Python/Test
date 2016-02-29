@@ -5,6 +5,7 @@ import math
 
 pygame.init()
 
+
 #Colour palette 
 white = (255,255,255)
 black = (0,0,0)
@@ -145,8 +146,37 @@ class NotAShip:
         self.disPlayer = math.sqrt(self.dxPlayer**2+self.dyPlayer**2) #Pythagoras Theorem used to calculate distance between object and player
 
         gameDisplay.blit(Object, (math.floor(self.disX),math.floor(self.disY))) #We use floor division as we cannot have fractional pixels
-        
 
+def message_to_screen(msg, colour):
+    screen_text = font.render(msg, True, colour)
+    gameDisplay.blit(screen_text, [display_width/2, display_height/2])
+
+def pauseMenu():
+
+    paused = True
+
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT():
+                pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = False
+                elif event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+                    
+        gameDisplay.fill(white)
+        message_to_screen("Paused, ",
+                          black)
+
+        message_to_screen("Press c to continue or q to quit",
+                          black)
+                          
+        
+#
+#
+#
 
 #Game states
 gameExit = False
