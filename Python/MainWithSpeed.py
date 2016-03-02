@@ -13,6 +13,12 @@ red = (255,0,0)
 green = (0,155,0)
 blue = (0,0,255)
 
+#Muted colours for inventory items
+invred = (195,60,60)
+invyellow = (190,210,110)
+invgreen = (105,185,130)
+invblue = (150,160,190)
+
 #Window dimensions; resolution
 display_width = 1200
 display_height = 800
@@ -94,6 +100,14 @@ def mergeSort(sortList):
             b += 1
             c += 1
 
+def rot_center(image, angle):
+    """rotate an image while keeping its center and size"""
+    orig_rect = image.get_rect()
+    rot_image = pygame.transform.rotate(image, angle)
+    rot_rect = orig_rect.copy()
+    rot_rect.center = rot_image.get_rect().center
+    rot_image = rot_image.subsurface(rot_rect).copy()
+    return rot_image
 
 #Class System
 class Ship:
@@ -201,7 +215,7 @@ class NotAShip:
         self.disPlayer = math.sqrt(self.dxPlayer**2+self.dyPlayer**2) #Pythagoras Theorem used to calculate distance between object and player
 
         gameDisplay.blit(Object, (math.floor(self.disX),math.floor(self.disY))) #We use floor division as we cannot have fractional pixels
-        
+
 
 
 #Game states
@@ -319,16 +333,60 @@ while not gameExit:
     gameDisplay.blit(text, textRect)
 
     #inventory bar
-    inventoryBar = pygame.Surface((display_width,36)) #Create a stats GUI bar as a surface
-    inventoryBar.set_alpha(200) #Make bar partly transparent                
+    inventoryBack = pygame.Surface((display_width,100))
+    inventoryBack.set_alpha(50)
+    inventoryBack.fill((20,50,150)) #Colour bar blue
+    gameDisplay.blit(inventoryBack, (0,0)) #Render GUI bar at bottom of screen
+    inventoryBar = pygame.Surface((display_width*0.3,90)) #Create a stats GUI bar as a surface
+    inventoryBar.set_alpha(150) #Make bar partly transparent
     inventoryBar.fill((20,50,150)) #Colour bar blue           
-    gameDisplay.blit(inventoryBar, (0,0)) #Render GUI bar at bottom of screen   
+    gameDisplay.blit(inventoryBar, (display_width*0.35,5)) #Render GUI bar at top of screen (previous entry said bottom of screen, despite position at top)
     
-    text = font.render("Inventory Items (" + str(len(inventory)) + "): " + str(inventory), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
-    textRect = text.get_rect()
-    textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
-    textRect.centery = (math.floor(20))
-    gameDisplay.blit(text, textRect)
+    #text = font.render("Inventory Items (" + str(len(inventory)) + "): " + str(inventory), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
+    #textRect = text.get_rect()
+    #textRect.centerx = (math.floor(display_width*0.5)) #Position text at top of page in center (previous entry said bottom of screen, despite position at top)
+    #textRect.centery = (math.floor(20))
+    #gameDisplay.blit(text, textRect)
+
+
+    """
+    inventoryItem1 = pygame.Surface((80,80))
+    inventoryItem1.set_alpha(100)
+    pygame.draw.rect(inventoryItem1, red, (25, 25, 50, 50), 0)
+    pygame.transform.rotate(inventoryItem1,45)
+    gameDisplay.blit(inventoryItem1, ((int(display_width*0.5-90), 40) ))
+    """
+
+    #Item Icons (can replace with sprites later if so desired) future proofed in case of resolution manipulation
+    invIcon1 = pygame.draw.polygon(gameDisplay, invred, (((display_width/2)-35, 10), ((display_width/2)-60, 35), ((display_width/2)-35, 60), ((display_width/2)-10, 35)))
+    invIcon2 = pygame.draw.polygon(gameDisplay, invyellow, (((display_width/2)-105, 10), ((display_width/2)-130, 35), ((display_width/2)-105, 60), ((display_width/2)-80, 35)))
+    invIcon3 = pygame.draw.polygon(gameDisplay, invgreen, (((display_width/2)+35, 10), ((display_width/2)+10, 35), ((display_width/2)+35, 60), ((display_width/2)+60, 35)))
+    invIcon4 = pygame.draw.polygon(gameDisplay, invblue, (((display_width/2)+105, 10), ((display_width/2)+80, 35), ((display_width/2)+105, 60), ((display_width/2)+130, 35)))
+
+    #Item Labels (Numbers need to be replaced with object call when items are created)
+    i1Text = font.render("14", 1, (100, 200, 255))
+    i1TextRect = i1Text.get_rect()
+    i1TextRect.centerx = (int((display_width/2)-35)) #Position text under correct icon
+    i1TextRect.centery = (80)
+    gameDisplay.blit(i1Text, i1TextRect)
+
+    i2Text = font.render("69", 1, (100, 200, 255))
+    i2TextRect = i2Text.get_rect()
+    i2TextRect.centerx = (int((display_width/2)-105)) #Position text under correct icon
+    i2TextRect.centery = (80)
+    gameDisplay.blit(i2Text, i2TextRect)
+
+    i3Text = font.render("42", 1, (100, 200, 255))
+    i3TextRect = i3Text.get_rect()
+    i3TextRect.centerx = (int((display_width/2)+35)) #Position text under correct icon
+    i3TextRect.centery = (80)
+    gameDisplay.blit(i3Text, i3TextRect)
+
+    i4Text = font.render("14", 1, (100, 200, 255))
+    i4TextRect = i4Text.get_rect()
+    i4TextRect.centerx = (int((display_width/2)+105)) #Position text under correct icon
+    i4TextRect.centery = (80)
+    gameDisplay.blit(i4Text, i4TextRect)
 
     #Update display
     pygame.display.update()
