@@ -1,6 +1,7 @@
 import pygame, sys
 
 
+
 class Option():
 
     #Variable to store wether text is hovered over or not
@@ -76,7 +77,7 @@ def mainMenu():
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if option1.rect.collidepoint(pygame.mouse.get_pos()) == True:
-                            xfile('VRBH.py')
+                            import MainWithSpeed
                         elif option2.rect.collidepoint(pygame.mouse.get_pos()) == True:
                             print(execfile("script2.py"))
                         else:

@@ -151,6 +151,7 @@ class Ship:
         def fwd(self):
             self.adv = True
 
+
         """def reload(self):
             Ship = pygame.image.load("spaceship.png") #Load the sprite image
             self.dW = display_width #Screen width
