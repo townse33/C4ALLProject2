@@ -113,6 +113,7 @@ class Ship:
             self.dH = display_height #Screen height
 
             self.adv = False #Is ship accelerating?
+            self.slw = False
             
 
             #store ship image dimensions
@@ -131,8 +132,13 @@ class Ship:
             
             if self.adv == True:
                 
-                self.accX += -math.sin(math.radians(self.dir))*0.005 #Sine rule to find change in player X acceleration
-                self.accY += -math.sin(math.radians(90-self.dir))*0.005 #Sine rule to find change in player Y acceleration
+                self.accX -= math.sin(math.radians(self.dir))*0.005 #Sine rule to find change in player X acceleration
+                self.accY -= math.sin(math.radians(90-self.dir))*0.005 #Sine rule to find change in player Y acceleration
+
+            elif self.slw == True:
+
+                self.accX += math.sin(math.radians(self.dir))*0.005 #Sine rule to find change in player X acceleration
+                self.accY += math.sin(math.radians(90-self.dir))*0.005 #Sine rule to find change in player Y acceleration
 
             #Rotate ship to current direction
             Ship = pygame.transform.rotate(pygame.image.load("spaceship.png"),self.dir)
@@ -151,35 +157,10 @@ class Ship:
             
         def fwd(self):
             self.adv = True
+        def bck(self):
+            self.slw = True
 
-#
-#
-#
-#
-#
-#
-#
-#
-#
-
-
-        def slowDown(self):
-            while event.type == pygame.KEYDOWN and event.key == pygame.K_s:
-                    self.posX = self.posX
-                    self.posY = self.posY
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
-                        self.adv = True
-#
-#
-#
-#
-#
-#
-#
-#
-#
-                    
-
+                
         """def reload(self):
             Ship = pygame.image.load("spaceship.png") #Load the sprite image
             self.dW = display_width #Screen width
@@ -256,6 +237,8 @@ def pauseMenu():
         message_to_screen("Press c to continue or q to quit",
                           black)
                           
+
+    
         
 #
 #
@@ -302,18 +285,8 @@ while not gameExit:
                     player.rotR()
             if event.key == pygame.K_w: #W accelerates the ship
                     player.fwd()
-#
-#
-#
-#
-
             if event.key == pygame.K_s: #S slows down the ship
-                    player.slowDown()
-#
-#
-#
-#
-
+                    player.bck()
             if event.key == pygame.K_q: #Quit (useful for fullscreen)
                     gameOver = True
             if event.key == pygame.K_p: #P for fullscreen lol
