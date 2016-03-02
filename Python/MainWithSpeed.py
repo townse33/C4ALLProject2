@@ -247,7 +247,7 @@ while not gameExit:
                     player.fwd()
             if event.key == pygame.K_q: #Quit (useful for fullscreen)
                     gameOver = True
-            if event.key == pygame.K_x:
+            if event.key == pygame.K_ESCAPE:
                     menuv2.pauseMenu()
             if event.key == pygame.K_p: #P for fullscreen lol
                     if fullscreenStat == True:
