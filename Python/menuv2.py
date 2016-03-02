@@ -54,6 +54,7 @@ title = title_font.render("VRBH GAME", True, (255, 255, 255))
 option1 = Option("NEW GAME", (515, 350))
 option2 = Option("LEADERBOARDS", (480, 400))
 option3 = Option("QUIT", (563, 450))
+option4 = Option("RESUME GAME", (515,350))
 
 #loads background image and converts it
 bg = pygame.image.load("background.jpg").convert()
@@ -88,6 +89,28 @@ def mainMenu():
             option.draw()
 
         pygame.display.update()
+
+def pauseMenu():
+    loop = True
+    while loop == True:
+        pygame.event.pump()
+        screen.blit(bg, (0,0))
+        screen.blit(title, (425,15))
+
+        for option in option3, option4:
+            if option.rect.collidepoint(pygame.mouse.get_pos()):
+                option.mouseHover = True
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if option4.rect.collidepoint(pygame.mouse.get_pos()) == True:
+                            MainWithSpeed.quit()
+                        if option3.rect.collidepoint(pygame.mouse.get_pos()) == True:
+                            pygame.quit()
+        else:
+            option.mouseHover = False
+        option.draw()
+
+    pygame.display.update()
 
 mainMenu()
 pygame.quit()  

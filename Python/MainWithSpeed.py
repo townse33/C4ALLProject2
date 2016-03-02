@@ -2,6 +2,7 @@ import pygame
 import time
 import random
 import math
+import menuv2
 
 pygame.init()
 
@@ -246,6 +247,8 @@ while not gameExit:
                     player.fwd()
             if event.key == pygame.K_q: #Quit (useful for fullscreen)
                     gameOver = True
+            if event.key == pygame.K_x:
+                    menuv2.pauseMenu()
             if event.key == pygame.K_p: #P for fullscreen lol
                     if fullscreenStat == True:
                             winMode = pygame.DOUBLEBUF | pygame.HWSURFACE
