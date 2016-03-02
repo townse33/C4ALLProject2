@@ -2,9 +2,9 @@ import pygame
 import time
 import random
 import math
+import menuv2
 
 pygame.init()
-
 
 #Colour palette 
 white = (255,255,255)
@@ -171,7 +171,7 @@ class NotAShip:
 
         global universe, inMemory
 
-        Object = pygame.image.load(img) #This time, we take an image as a string as a parameter too
+        Object = pygame.image.load("planets/" + img) #This time, we take an image as a string as a parameter too
 
         self.sW, self.sH = Object.get_size()
 
@@ -179,7 +179,7 @@ class NotAShip:
         self.posY = posY
         self.disX = posX + 5*self.sW/6 #Centering only affects an object's initial screen position so this is done before the blit, multipliers to compensate for pygame's bad centering
         self.disY = posY + 2*self.sH/3
-        self.img = img #We maintain the image path as an attribute so it need only be provided once
+        self.img = "planets/" + img #We maintain the image path as an attribute so it need only be provided once
         self.GM = GM*2000 #Gravitational constant
         self.inMem = True #Planet starts in memory
 
@@ -201,37 +201,8 @@ class NotAShip:
         self.disPlayer = math.sqrt(self.dxPlayer**2+self.dyPlayer**2) #Pythagoras Theorem used to calculate distance between object and player
 
         gameDisplay.blit(Object, (math.floor(self.disX),math.floor(self.disY))) #We use floor division as we cannot have fractional pixels
-
-def message_to_screen(msg, colour):
-    screen_text = font.render(msg, True, colour)
-    gameDisplay.blit(screen_text, [display_width/2, display_height/2])
-
-def pauseMenu():
-
-    paused = True
-
-    while paused:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT():
-                pygame.quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    paused = False
-                elif event.key == pygame.K_q:
-                    pygame.quit()
-                    quit()
-                    
-        gameDisplay.fill(white)
-        message_to_screen("Paused, ",
-                          black)
-
-        message_to_screen("Press c to continue or q to quit",
-                          black)
-                          
         
-#
-#
-#
+
 
 #Game states
 gameExit = False
@@ -276,6 +247,8 @@ while not gameExit:
                     player.fwd()
             if event.key == pygame.K_q: #Quit (useful for fullscreen)
                     gameOver = True
+            if event.key == pygame.K_x:
+                    menuv2.pauseMenu()
             if event.key == pygame.K_p: #P for fullscreen lol
                     if fullscreenStat == True:
                             winMode = pygame.DOUBLEBUF | pygame.HWSURFACE
@@ -339,7 +312,7 @@ while not gameExit:
 
 
     mergeSort(inventory)
-    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
+    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s", 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
     textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
     textRect.centery = (math.floor(display_height-18))
