@@ -167,8 +167,7 @@ class Ship:
             while event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                     self.posX = self.posX
                     self.posY = self.posY
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
-                        self.adv = True
+                    
 #
 #
 #
