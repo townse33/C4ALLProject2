@@ -242,6 +242,7 @@ player = Ship(scrPos_x, scrPos_y)
 Object1 = NotAShip(0, 0,"earth.jpg",0.4) #Places aobject
 Object2 = NotAShip(600,600,"moon.jpg",0.05) #Places a Moon object
 Object3 = NotAShip(-500,-500,"mars.jpg",0.3) #Places a Mars object
+Object4 = NotAShip(-2000,-1500,"jupiter.jpg",0.3) #Places a Jupiter object
 
 
 
@@ -259,6 +260,9 @@ while not gameExit:
 
     #Obtain all user events as a sequence and put them in a for loop
     for event in pygame.event.get():
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_LCTRL] and pressed[pygame.K_m]: #if CTRL and M pressed...
+            menuv2.mainMenu() #...Go back to menu
 
         if event.type == pygame.KEYDOWN: #When key is down
                 
