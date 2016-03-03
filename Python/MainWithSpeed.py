@@ -243,6 +243,8 @@ Object1 = NotAShip(0, 0,"earth.jpg",0.4) #Places aobject
 Object2 = NotAShip(600,600,"moon.jpg",0.05) #Places a Moon object
 Object3 = NotAShip(-500,-500,"mars.jpg",0.3) #Places a Mars object
 Object4 = NotAShip(-2000,-1500,"jupiter.jpg",0.3) #Places a Jupiter object
+Object5 = NotAShip(1700,0,"saturn.jpg",0.3) #Places a Saturn object
+
 
 
 
