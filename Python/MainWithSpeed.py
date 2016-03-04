@@ -127,6 +127,7 @@ class Ship:
             self.dH = display_height #Screen height
 
             self.adv = False #Is ship accelerating?
+            self.decc = False
             
 
             #store ship image dimensions
@@ -148,6 +149,12 @@ class Ship:
                 self.accX += -math.sin(math.radians(self.dir))*0.005 #Sine rule to find change in player X acceleration
                 self.accY += -math.sin(math.radians(90-self.dir))*0.005 #Sine rule to find change in player Y acceleration
 
+            if self.decc == True:
+
+                self.accX = self.accX*0.99
+                self.accY = self.accY*0.99
+
+
             #Rotate ship to current direction
             Ship = pygame.transform.rotate(pygame.image.load("spaceship.png"),self.dir)
 
@@ -165,6 +172,9 @@ class Ship:
             
         def fwd(self):
             self.adv = True
+
+        def bwd(self):
+            self.decc = True
 
         """def reload(self):
             Ship = pygame.image.load("spaceship.png") #Load the sprite image
@@ -232,6 +242,9 @@ player = Ship(scrPos_x, scrPos_y)
 Object1 = NotAShip(0, 0,"earth.jpg",0.4) #Places aobject
 Object2 = NotAShip(600,600,"moon.jpg",0.05) #Places a Moon object
 Object3 = NotAShip(-500,-500,"mars.jpg",0.3) #Places a Mars object
+Object4 = NotAShip(-2000,-1500,"jupiter.jpg",0.3) #Places a Jupiter object
+Object5 = NotAShip(1700,0,"saturn.jpg",0.3) #Places a Saturn object
+
 
 
 
@@ -249,6 +262,9 @@ while not gameExit:
 
     #Obtain all user events as a sequence and put them in a for loop
     for event in pygame.event.get():
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_LCTRL] and pressed[pygame.K_m]: #if CTRL and M pressed...
+            menuv2.mainMenu() #...Go back to menu
 
         if event.type == pygame.KEYDOWN: #When key is down
                 
@@ -261,6 +277,8 @@ while not gameExit:
                     player.fwd()
             if event.key == pygame.K_q: #Quit (useful for fullscreen)
                     gameOver = True
+            if event.key == pygame.K_s:
+                    player.bwd()
             if event.key == pygame.K_ESCAPE:
                     menuv2.pauseMenu()
             if event.key == pygame.K_p: #P for fullscreen lol
@@ -283,6 +301,8 @@ while not gameExit:
                     player.rot = 0
             if event.key == pygame.K_w: #Stop accelerating if W is released
                     player.adv = False
+            if event.key == pygame.K_s:
+                    player.decc = False
         
 
         #Allows a user to close the window using the close button
