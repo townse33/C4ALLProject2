@@ -13,6 +13,7 @@ red = (255,0,0)
 green = (0,155,0)
 blue = (0,0,255)
 
+done = False
 #Muted colours for inventory items
 invred = (195,60,60)
 invyellow = (190,210,110)
@@ -61,14 +62,30 @@ def sellInventory(modList, money):
     as well as removing all the items sold from the inventory """
     
     for i in modList: # Adds money, using the itemCost dictionary
-        money += itemCost[ i ] * itemAmount[ i ]        
-
-    inventory[:] = [] # Clears the inventory, better than iterating over the list
-
+        money += itemCost[ i ] * itemAmount[ i ]
+        
+    itemAmount["nebulium"] = 0
+    itemAmount["bismuth"] = 0
+    itemAmount["polonium"] = 0
+    itemAmount["francium"] = 0
+    
     # Found that iterating over the list caused a problem with List Aliasing
     # and removing items from the list being iterated over
     
     return(money)
+
+def pickup():
+    neb = random.choice((0, 0, 1, 2, 3, 4, 5))
+    bis = random.choice((0, 0, 0, 1, 2))
+    pol = random.choice((0, 0, 0, 1, 2, 3))
+    fra = random.choice((0, 0, 0, 0, 1, 2))
+
+    itemAmount["nebulium"] += neb
+    itemAmount["bismuth"] += bis
+    itemAmount["polonium"] += pol
+    itemAmount["francium"] += fra
+
+    
 
 def mergeSort(sortList):
 
@@ -348,6 +365,11 @@ while not gameExit:
 
     if (math.floor(texX) < 100 and math.floor(texX) > -100) and (math.floor(texY) < 100 and math.floor(texY) > -100) and texSpeed == 0:
         money = sellInventory(inventory, money)
+        done = False
+    
+    while done == False and (math.floor(texX) > -790 and math.floor(texX) < -550) and (math.floor(texY) > -680 and math.floor(texY) < -410) and texSpeed == 0:
+        pickup()
+        done = True
 
     text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s" + "        Credits: " + str(money), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
