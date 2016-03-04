@@ -17,7 +17,7 @@ blue = (0,0,255)
 invred = (195,60,60)
 invyellow = (190,210,110)
 invgreen = (105,185,130)
-invblue = (150,160,190)
+invblue = (135,206,250)
 
 #Window dimensions; resolution
 display_width = 1200
@@ -45,9 +45,11 @@ texY = 0 #Player Y position for text
 texSpeed = 0 #Player speed for text
 
 #Inventory setup
-itemCost = {"Object1":1, "Object2":5, "Object3":10, "Object4":20, "Object5":17} # Costs of all the items that can be collected
+itemCost = {"nebulium":39, "bismuth":81, "polonium":56, "francium":93} # Costs of all the items that can be collected
+# nebulium == yellow, bismuth == red, polonium == green, francium == blue
 
-inventory = ["Object3", "Object2", "Object1"] # Inventory items collected by the user
+inventory = ["nebulium", "bismuth", "polonium", "francium"] # Inventory items collected by the user
+itemAmount = {"nebulium":16, "bismuth":24, "polonium":32, "francium":47} #How much of each item the user has
 money = 0 # Credits owned by the user
 
 
@@ -58,8 +60,8 @@ def sellInventory(modList, money):
     """ Will output the amount of money gained from selling all the items
     as well as removing all the items sold from the inventory """
     
-    for i in range(len(modList)): # Adds money, using the itemCost dictionary
-        money += itemCost[ modList[i] ]        
+    for i in modList: # Adds money, using the itemCost dictionary
+        money += itemCost[ i ] * itemAmount[ i ]        
 
     inventory[:] = [] # Clears the inventory, better than iterating over the list
 
@@ -242,9 +244,6 @@ player = Ship(scrPos_x, scrPos_y)
 Object1 = NotAShip(0, 0,"earth.jpg",0.4) #Places aobject
 Object2 = NotAShip(600,600,"moon.jpg",0.05) #Places a Moon object
 Object3 = NotAShip(-500,-500,"mars.jpg",0.3) #Places a Mars object
-Object4 = NotAShip(-2000,-1500,"jupiter.jpg",0.3) #Places a Jupiter object
-Object5 = NotAShip(1700,0,"saturn.jpg",0.3) #Places a Saturn object
-
 
 
 
@@ -346,27 +345,24 @@ while not gameExit:
 
 
     mergeSort(inventory)
-    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s", 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
+
+    if (math.floor(texX) < 100 and math.floor(texX) > -100) and (math.floor(texY) < 100 and math.floor(texY) > -100) and texSpeed == 0:
+        money = sellInventory(inventory, money)
+
+    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s" + "        Credits: " + str(money), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
     textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
     textRect.centery = (math.floor(display_height-18))
     gameDisplay.blit(text, textRect)
 
     #inventory bar
-    inventoryBack = pygame.Surface((display_width,100))
-    inventoryBack.set_alpha(50)
-    inventoryBack.fill((20,50,150)) #Colour bar blue
-    gameDisplay.blit(inventoryBack, (0,0)) #Render GUI bar at bottom of screen
+
     inventoryBar = pygame.Surface((display_width*0.3,90)) #Create a stats GUI bar as a surface
     inventoryBar.set_alpha(150) #Make bar partly transparent
     inventoryBar.fill((20,50,150)) #Colour bar blue           
     gameDisplay.blit(inventoryBar, (display_width*0.35,5)) #Render GUI bar at top of screen (previous entry said bottom of screen, despite position at top)
     
-    #text = font.render("Inventory Items (" + str(len(inventory)) + "): " + str(inventory), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
-    #textRect = text.get_rect()
-    #textRect.centerx = (math.floor(display_width*0.5)) #Position text at top of page in center (previous entry said bottom of screen, despite position at top)
-    #textRect.centery = (math.floor(20))
-    #gameDisplay.blit(text, textRect)
+    
 
 
     """
@@ -378,35 +374,40 @@ while not gameExit:
     """
 
     #Item Icons (can replace with sprites later if so desired) future proofed in case of resolution manipulation
-    invIcon1 = pygame.draw.polygon(gameDisplay, invred, (((display_width/2)-35, 10), ((display_width/2)-60, 35), ((display_width/2)-35, 60), ((display_width/2)-10, 35)))
-    invIcon2 = pygame.draw.polygon(gameDisplay, invyellow, (((display_width/2)-105, 10), ((display_width/2)-130, 35), ((display_width/2)-105, 60), ((display_width/2)-80, 35)))
+    invIcon1 = pygame.draw.polygon(gameDisplay, invyellow, (((display_width/2)-105, 10), ((display_width/2)-130, 35), ((display_width/2)-105, 60), ((display_width/2)-80, 35)))
+    invIcon2 = pygame.draw.polygon(gameDisplay, invred, (((display_width/2)-35, 10), ((display_width/2)-60, 35), ((display_width/2)-35, 60), ((display_width/2)-10, 35)))
     invIcon3 = pygame.draw.polygon(gameDisplay, invgreen, (((display_width/2)+35, 10), ((display_width/2)+10, 35), ((display_width/2)+35, 60), ((display_width/2)+60, 35)))
     invIcon4 = pygame.draw.polygon(gameDisplay, invblue, (((display_width/2)+105, 10), ((display_width/2)+80, 35), ((display_width/2)+105, 60), ((display_width/2)+130, 35)))
 
-    #Item Labels (Numbers need to be replaced with object call when items are created)
-    i1Text = font.render("14", 1, (100, 200, 255))
-    i1TextRect = i1Text.get_rect()
-    i1TextRect.centerx = (int((display_width/2)-35)) #Position text under correct icon
-    i1TextRect.centery = (80)
-    gameDisplay.blit(i1Text, i1TextRect)
-
-    i2Text = font.render("69", 1, (100, 200, 255))
+    i2Text = font.render(str(itemAmount["nebulium"]), 1, (100, 200, 255))
     i2TextRect = i2Text.get_rect()
     i2TextRect.centerx = (int((display_width/2)-105)) #Position text under correct icon
     i2TextRect.centery = (80)
     gameDisplay.blit(i2Text, i2TextRect)
 
-    i3Text = font.render("42", 1, (100, 200, 255))
+    i1Text = font.render(str(itemAmount["bismuth"]), 1, (100, 200, 255))
+    i1TextRect = i1Text.get_rect()
+    i1TextRect.centerx = (int((display_width/2)-35)) #Position text under correct icon
+    i1TextRect.centery = (80)
+    gameDisplay.blit(i1Text, i1TextRect)
+
+    i3Text = font.render(str(itemAmount["polonium"]), 1, (100, 200, 255))
     i3TextRect = i3Text.get_rect()
     i3TextRect.centerx = (int((display_width/2)+35)) #Position text under correct icon
     i3TextRect.centery = (80)
     gameDisplay.blit(i3Text, i3TextRect)
 
-    i4Text = font.render("14", 1, (100, 200, 255))
+    i4Text = font.render(str(itemAmount["francium"]), 1, (100, 200, 255))
     i4TextRect = i4Text.get_rect()
     i4TextRect.centerx = (int((display_width/2)+105)) #Position text under correct icon
     i4TextRect.centery = (80)
     gameDisplay.blit(i4Text, i4TextRect)
+
+    text = font.render("N      B      P       F", 1, (0,0,0)) #Render GUI text, floor division used for variables for readability
+    textRect = text.get_rect()
+    textRect.centerx = (math.floor(display_width*0.5)) #Position text at top of page in center (previous entry said bottom of screen, despite position at top)
+    textRect.centery = (math.floor(35))
+    gameDisplay.blit(text, textRect)
 
     #Update display
     pygame.display.update()
