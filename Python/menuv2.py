@@ -103,7 +103,7 @@ def pauseMenu():
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if option4.rect.collidepoint(pygame.mouse.get_pos()) == True:
-                            pass
+                            loop = False
                         elif option3.rect.collidepoint(pygame.mouse.get_pos()) == True:
                             pygame.quit()
                         else:
