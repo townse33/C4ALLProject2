@@ -4,7 +4,13 @@ import random
 import math
 import menuv2
 
+pygame.mixer.pre_init(44100,16,2,4096)#Background Music
 pygame.init()
+
+#Background Music
+pygame.mixer.music.load("backgroundsongofchoice.mp3")#As you probably know song should be in the game folder
+pygame.mixer.music.set_volume(1)#Volume
+pygame.mixer.music.play(-1)#This loops the song
 
 #Colour palette 
 white = (255,255,255)
@@ -19,6 +25,7 @@ invred = (195,60,60)
 invyellow = (190,210,110)
 invgreen = (105,185,130)
 invblue = (135,206,250)
+
 
 #Window dimensions; resolution
 display_width = 1200
