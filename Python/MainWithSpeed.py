@@ -33,6 +33,8 @@ invblue = (135,206,250)
 fuel = 100
 texFuel = 100
 
+mineArg = [0,0,0,0]
+
 
 #Window dimensions; resolution
 display_width = 1200
@@ -90,7 +92,7 @@ def sellInventory(modList, money):
 
 def mine(n,b,p,f):
 
-    global mineText, mineState
+    global mineText
 
     invSize = 0
 
@@ -224,7 +226,7 @@ class Ship:
             gameDisplay.blit(Ship, (display_width/2-spriteW*0.5,display_height/2-spriteH*0.5))
 
             self.posX +=self.accX
-            self.posY +=self.accY
+            self.posY -=self.accY
 
         def rotL(self):
             self.rot = 1 #Rotate anticlockwise 1 degree per frame
@@ -267,10 +269,10 @@ class NotAShip:
 
         
         self.img = "planets/" + img #We maintain the image path as an attribute so it need only be provided once
-        self.nFreq = N
-        self.bFreq = B
-        self.pFreq = P
-        self.fFreq = F
+        self.n = N
+        self.b = B
+        self.p = P
+        self.f = F
         self.inMem = True #Planet starts in memory
 
         self.shop = shop
@@ -283,7 +285,7 @@ class NotAShip:
     
     def update(self):
 
-        global mineShow,display_width,display_height,money,fuel
+        global mineShow,display_width,display_height,money,fuel,mineArg
 
         self.disX -= player.accX #Evaluate difference in object to player position on the screen
         self.disY -= player.accY
@@ -291,7 +293,6 @@ class NotAShip:
         Object = pygame.image.load(self.img)
 
         gameDisplay.blit(Object, (math.floor(self.disX),math.floor(self.disY))) #We use floor division as we cannot have fractional pixels
-
 
         if abs(self.disX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/2-display_height/2) < 150:
 
@@ -303,17 +304,7 @@ class NotAShip:
             else:
 
                 mineShow = True
-
-                for event in pygame.event.get():
-
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
-                        
-                        mine(self.nFreq,self.bFreq,self.pFreq,self.fFreq)
-
-                        mineText = "Press M to mine"
-            
-
-
+                mineArg = [self.n,self.b,self.p,self.f]
 
 #Game states
 gameExit = False
@@ -356,6 +347,11 @@ while not gameExit:
                     gameOver = True
             if event.key == pygame.K_s:
                     player.bwd()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                        
+                        mine(mineArg[0],mineArg[1],mineArg[2],mineArg[3])
+
+                        mineText = "Press M to mine"
             if event.key == pygame.K_ESCAPE:
                     menuv2.pauseMenu()
             if event.key == pygame.K_p: #P for fullscreen lol
