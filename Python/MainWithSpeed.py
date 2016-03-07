@@ -3,6 +3,8 @@ import time
 from random import *
 import math
 import menuv2
+import os
+import sys
 
 pygame.mixer.pre_init(44100,16,2,4096)#Background Music
 pygame.init()
@@ -27,6 +29,9 @@ invred = (195,60,60)
 invyellow = (190,210,110)
 invgreen = (105,185,130)
 invblue = (135,206,250)
+
+fuel = 100
+texFuel = 100
 
 
 #Window dimensions; resolution
@@ -191,7 +196,7 @@ class Ship:
             gameDisplay.blit(Ship, (self.dW/2-self.sW*0.5,self.dH/2-self.sH*0.5))
 
         def update(self):
-            global display_height, display_width
+            global display_height, display_width, fuel
 
             #Modulo on direction to prevent direction exeeding 360 degrees
             self.dir = self.dir % 360
@@ -202,6 +207,8 @@ class Ship:
                 
                 self.accX -= math.sin(math.radians(self.dir))*0.005 #Sine rule to find change in player X acceleration
                 self.accY -= math.sin(math.radians(90-self.dir))*0.005 #Sine rule to find change in player Y acceleration
+
+                fuel -= 0.1
 
             if self.decc == True:
 
@@ -276,7 +283,7 @@ class NotAShip:
     
     def update(self):
 
-        global mineShow,display_width,display_height,money
+        global mineShow,display_width,display_height,money,fuel
 
         self.disX -= player.accX #Evaluate difference in object to player position on the screen
         self.disY -= player.accY
@@ -291,6 +298,7 @@ class NotAShip:
             if self.shop:
 
                 money = sellInventory(inventory,money)
+                fuel = 100
 
             else:
 
@@ -407,6 +415,10 @@ while not gameExit:
             texY = player.posY
             texX = player.posX
             texSpeed = round(40*math.sqrt((player.accX)**2+(player.accY)**2),1)
+            if fuel < 0:
+                texFuel = 0
+            else:
+                texFuel = round(fuel,2)
     #stat bar
     statBar = pygame.Surface((display_width,36)) #Create a stats GUI bar as a surface
     statBar.set_alpha(200) #Make bar partly transparent                
@@ -420,7 +432,7 @@ while not gameExit:
         money = sellInventory(inventory, money)
         done = False
 
-    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s" + "        Credits: " + str(money), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
+    text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s" + "        Credits: " + str(money) + "        Fuel:" + str(texFuel) + "%", 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
     textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
     textRect.centery = (math.floor(display_height-18))
@@ -492,6 +504,48 @@ while not gameExit:
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
         textRect.centery = (math.floor(125))
         gameDisplay.blit(text, textRect)
+
+    if fuel <= 0:
+
+        player.accX = 0
+        player.accY = 0
+        player.dir = 0
+
+        mineBar = pygame.Surface((display_width*0.4,100)) 
+        mineBar.set_alpha(200) #Make bar partly transparent
+        mineBar.fill((255,50,20)) #Colour bar blue           
+        gameDisplay.blit(mineBar, (display_width*0.3,display_height*0.5))
+
+        font.set_bold(True)
+    
+        text = font.render("Game Over", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+22.5))
+        gameDisplay.blit(text, textRect)
+
+        font.set_bold(False)
+
+        text = font.render("Out of fuel", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+50))
+        gameDisplay.blit(text, textRect)
+
+        text = font.render("Press any key to quit to menu", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+80))
+        gameDisplay.blit(text, textRect)
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.KEYDOWN:
+                
+                 os.execl(sys.executable, sys.executable, * sys.argv)
 
     mineShow = False
     
