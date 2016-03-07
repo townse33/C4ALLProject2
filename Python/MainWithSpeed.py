@@ -1,6 +1,10 @@
-import pygame, time, math, menuv2, os, sys
+import pygame
+import time
 from random import *
-
+import math
+import menuv2
+import os
+import sys
 
 pygame.mixer.pre_init(44100,16,2,4096)#Background Music
 pygame.init()
@@ -8,6 +12,7 @@ pygame.init()
 #Background Music
 pygame.mixer.music.load("backgroundsongofchoice.mp3")#As you probably know song should be in the game folder
 pygame.mixer.music.set_volume(1)#Volume
+pygame.mixer.music.play(-1)#This loops the song
 
 #Colour palette 
 white = (255,255,255)
@@ -72,6 +77,7 @@ inventory = ["nebulium", "bismuth", "polonium", "francium"] # Inventory items co
 itemAmount = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0} #How much of each item the user has
 money = 0 # Credits owned by the user
 
+totalItems = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0}
 
 def addToInventory(modList, item):
     modList.append(item)
@@ -108,7 +114,7 @@ def mine(n,b,p,f):
     for mineral in itemAmount:
 
         invSize += itemAmount[mineral]
-
+    
     if invSize < 20:
 
             neb = randint(0,n)
@@ -120,6 +126,12 @@ def mine(n,b,p,f):
             itemAmount["bismuth"] += bis
             itemAmount["polonium"] += pol
             itemAmount["francium"] += fra
+
+            totalItems["nebulium"] += neb
+            totalItems["bismuth"] += bis
+            totalItems["polonium"] += pol
+            totalItems["francium"] += fra
+            
 
             invSize = 0
 
@@ -141,6 +153,9 @@ def mine(n,b,p,f):
 
                     invSize += itemAmount[mineral]
 
+            
+
+            
 
 def mergeSort(sortList):
 
@@ -350,9 +365,6 @@ Object3 = NotAShip(-500,-500,"mars.jpg",3,2,1,1) #Places a Mars object
 
 fullscreenStat = False
 
-
-
- 
 while not gameExit:
     
     if gameOver == True:
@@ -365,12 +377,11 @@ while not gameExit:
     #Obtain all user events as a sequence and put them in a for loop
     for event in pygame.event.get():
         pressed = pygame.key.get_pressed()
-            
+        if pressed[pygame.K_LCTRL] and pressed[pygame.K_m]: #if CTRL and M pressed...
+            menuv2.mainMenu() #...Go back to menu
 
-     
         if event.type == pygame.KEYDOWN: #When key is down
-               
-
+                
             
             if event.key == pygame.K_a: #A button turns ship left
                     player.rotL()
@@ -418,8 +429,6 @@ while not gameExit:
         if event.type == pygame.QUIT:
                 gameOver = True
                 
-   
-        
        
     
     #Undraw objects with black, call all update methods for objects
@@ -614,6 +623,46 @@ while not gameExit:
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
         textRect.centery = (math.floor(display_height*0.5+80))
         gameDisplay.blit(text, textRect)
+
+        #Sorting printed to display
+        printList = ["Nebulium", "Bismuth", "Polonium", "Francium"]
+        mergeSort(printList)
+        text = font.render("Total Items Collected", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+140))
+        gameDisplay.blit(text, textRect)
+        
+        printList = ["Nebulium", "Bismuth", "Polonium", "Francium"]
+        mergeSort(printList)
+        text = font.render(printList[0] + ": " + str(totalItems[ str(printList[0]).lower() ]), 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+170))
+        gameDisplay.blit(text, textRect)
+
+        text = font.render(printList[1] + ": " + str(totalItems[ str(printList[1]).lower() ]), 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+200))
+        gameDisplay.blit(text, textRect)
+
+        text = font.render(printList[2] + ": " + str(totalItems[ str(printList[2]).lower() ]), 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+230))
+        gameDisplay.blit(text, textRect)
+
+        text = font.render(printList[3] + ": " + str(totalItems[ str(printList[3]).lower() ]), 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+260))
+        gameDisplay.blit(text, textRect)
+
+
+
+
+
 
         for event in pygame.event.get():
 
