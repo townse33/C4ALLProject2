@@ -318,6 +318,8 @@ class NotAShip:
 
             if self.shop:
 
+                mineArg = [0,0,0,0]
+
                 if invSize>0:
                     money = sellInventory(inventory,money)
                     invNote = True
@@ -379,8 +381,8 @@ while not gameExit:
                     player.fwd()
             if event.key == pygame.K_s:
                     player.bwd()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
-                        
+            if event.key == pygame.K_m:
+    
                         mine(mineArg[0],mineArg[1],mineArg[2],mineArg[3])
 
                         mineText = "Press M to mine"
