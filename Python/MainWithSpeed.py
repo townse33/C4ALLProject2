@@ -11,7 +11,7 @@ pygame.init()
 
 #Background Music
 pygame.mixer.music.load("backgroundsongofchoice.mp3")#As you probably know song should be in the game folder
-pygame.mixer.music.set_volume(1)#Volume
+pygame.mixer.music.set_volume(0.1)#Volume
 pygame.mixer.music.play(-1)#This loops the song
 
 #Colour palette 
@@ -201,15 +201,14 @@ def binarySearch(searchValue, array):
     first = 0
     last = len(array) - 1
     beenFound = False
-	
+
     while first <= last and not beenFound:
         midpoint = (first + last)//2
 
         if array[midpoint] == searchValue:
             result = str(searchValue) + " has been found"
             beenFound = True
-            
-	    
+
         else:
             if searchValue < array[midpoint]:
                 last = midpoint-1
@@ -245,7 +244,6 @@ class Ship:
 
             self.adv = False #Is ship accelerating?
             self.decc = False
-            
 
             #store ship image dimensions
             self.sW, self.sH = Ship.get_size()
@@ -303,9 +301,6 @@ class Ship:
             #centre ship by subtracting half ship size from given dimensions
             gameDisplay.blit(Ship, (self.dW/2-self.sW*0.5,self.dH/2-self.sH*0.5))"""
 
-            
-            
-        
 
 class NotAShip:
     """Placeholder class used for objects that are not the player, i.e. ones that need scrolling"""
@@ -338,7 +333,6 @@ class NotAShip:
         universe.append(self)
         inMemory.append(self)
 
-    
     def update(self):
 
         global mineShow,display_width,display_height,money,fuel,mineArg,shopNote,invNote,invSize
@@ -371,9 +365,6 @@ class NotAShip:
                 mineArg = [self.n,self.b,self.p,self.f]
                 shopNote = False
                 invNote = False
-
-
-
 
 def ranValue():
     global inventory, itemCost
@@ -517,16 +508,6 @@ while not gameExit:
     else:
         timeR = 0
         ranValue()
-    
-    
-
-    """
-    inventoryItem1 = pygame.Surface((80,80))
-    inventoryItem1.set_alpha(100)
-    pygame.draw.rect(inventoryItem1, red, (25, 25, 50, 50), 0)
-    pygame.transform.rotate(inventoryItem1,45)
-    gameDisplay.blit(inventoryItem1, ((int(display_width*0.5-90), 40) ))
-    """
 
     #Item Icons (can replace with sprites later if so desired) future proofed in case of resolution manipulation
     invIcon1 = pygame.draw.polygon(gameDisplay, invyellow, (((display_width/2)-105, 10), ((display_width/2)-130, 35), ((display_width/2)-105, 60), ((display_width/2)-80, 35)))
@@ -713,14 +694,5 @@ while not gameExit:
     #Clock ticks to run at FPS
     clock.tick(FPS)
 
-
-
 #Close window, end game
 pygame.quit()
-
-
-
-                
-            
-    
-    
