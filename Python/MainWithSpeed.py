@@ -72,11 +72,11 @@ texSpeed = 0 #Player speed for text
 #Inventory setup
 itemCost = {"nebulium":39, "bismuth":81, "polonium":56, "francium":93} # Costs of all the items that can be collected
 # nebulium == yellow, bismuth == red, polonium == green, francium == blue
-
+printList = ["nebulium", "bismuth", "polonium", "francium"]
 inventory = ["nebulium", "bismuth", "polonium", "francium"] # Inventory items collected by the user
 itemAmount = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0} #How much of each item the user has
 money = 0 # Credits owned by the user
-
+alphaOrNumeric = True   #True indicates alphabetic, False indicates Numeric
 totalItems = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0}
 
 def addToInventory(modList, item):
@@ -188,6 +188,34 @@ def mergeSort(sortList):
             sortList[c]=right[b]
             b += 1
             c += 1
+
+def bubbleSort(sortList):
+
+    for i in range(len(sortList)):
+        for j in range(len(sortList)-1-i):
+            if itemAmount[ sortList[j] ] > itemAmount[ sortList[j + 1] ]:
+                sortList[j], sortList[j+1] = sortList[j+1], sortList[j]
+
+
+def binarySearch(searchValue, array):
+    first = 0
+    last = len(array) - 1
+    beenFound = False
+	
+    while first <= last and not beenFound:
+        midpoint = (first + last)//2
+
+        if array[midpoint] == searchValue:
+            result = str(searchValue) + " has been found"
+            beenFound = True
+            
+	    
+        else:
+            if searchValue < array[midpoint]:
+                last = midpoint-1
+            else:
+                first = midpoint+1	
+    return()
 
 def rot_center(image, angle):
     """rotate an image while keeping its center and size"""
@@ -617,7 +645,7 @@ while not gameExit:
         textRect.centery = (math.floor(display_height*0.5+50))
         gameDisplay.blit(text, textRect)
 
-        text = font.render("Press any key to quit to menu", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        text = font.render("Press Esc to quit to menu", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
 
         textRect = text.get_rect()
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
@@ -625,16 +653,28 @@ while not gameExit:
         gameDisplay.blit(text, textRect)
 
         #Sorting printed to display
-        printList = ["Nebulium", "Bismuth", "Polonium", "Francium"]
-        mergeSort(printList)
+        for event in pygame.event.get():
+
+            if event.type == pygame.KEYUP:
+
+                if event.key == pygame.K_ESCAPE:
+                    os.execl(sys.executable, sys.executable, * sys.argv)
+
+                if event.key == pygame.K_e:
+                    if alphaOrNumeric == True:
+                        bubbleSort(printList)
+                        alphaOrNumeric = False
+        
+                    elif alphaOrNumeric == False:
+                        mergeSort(printList)
+                        alphaOrNumeric = True
+                
         text = font.render("Total Items Collected", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
         textRect = text.get_rect()
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
         textRect.centery = (math.floor(display_height*0.5+140))
         gameDisplay.blit(text, textRect)
         
-        printList = ["Nebulium", "Bismuth", "Polonium", "Francium"]
-        mergeSort(printList)
         text = font.render(printList[0] + ": " + str(totalItems[ str(printList[0]).lower() ]), 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
         textRect = text.get_rect()
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
@@ -659,16 +699,11 @@ while not gameExit:
         textRect.centery = (math.floor(display_height*0.5+260))
         gameDisplay.blit(text, textRect)
 
-
-
-
-
-
-        for event in pygame.event.get():
-
-            if event.type == pygame.KEYDOWN:
-                
-                 os.execl(sys.executable, sys.executable, * sys.argv)
+        text = font.render("Press 'E' to reorder by numerical or alphabetical order", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.5+320))
+        gameDisplay.blit(text, textRect)
 
     mineShow = False
     
