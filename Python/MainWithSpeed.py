@@ -23,12 +23,15 @@ pblue = (0,0,255)
 
 done = False
 mineShow = False
-mineText = "Press M to mine"
+mineText = "Sell or refuel here!"
 #Muted colours for inventory items
 invred = (195,60,60)
 invyellow = (190,210,110)
 invgreen = (105,185,130)
 invblue = (135,206,250)
+invSize = 0
+invNote = False
+shopNote = False
 
 fuel = 100
 texFuel = 100
@@ -36,6 +39,9 @@ texFuel = 100
 mineArg = [0,0,0,0]
 
 timeR = 0
+timeN = 0
+
+gCredits = 0
 
 
 #Window dimensions; resolution
@@ -68,7 +74,7 @@ itemCost = {"nebulium":39, "bismuth":81, "polonium":56, "francium":93} # Costs o
 # nebulium == yellow, bismuth == red, polonium == green, francium == blue
 
 inventory = ["nebulium", "bismuth", "polonium", "francium"] # Inventory items collected by the user
-itemAmount = {"nebulium":16, "bismuth":24, "polonium":32, "francium":47} #How much of each item the user has
+itemAmount = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0} #How much of each item the user has
 money = 0 # Credits owned by the user
 
 
@@ -76,16 +82,22 @@ def addToInventory(modList, item):
     modList.append(item)
 
 def sellInventory(modList, money):
+    global invSize, gCredits
     """ Will output the amount of money gained from selling all the items
     as well as removing all the items sold from the inventory """
+
+    gCredits = 0
     
     for i in modList: # Adds money, using the itemCost dictionary
         money += itemCost[ i ] * itemAmount[ i ]
+        gCredits += itemCost[ i ] * itemAmount[ i ]
         
     itemAmount["nebulium"] = 0
     itemAmount["bismuth"] = 0
     itemAmount["polonium"] = 0
     itemAmount["francium"] = 0
+
+    invSize = 0
     
     # Found that iterating over the list caused a problem with List Aliasing
     # and removing items from the list being iterated over
@@ -94,7 +106,7 @@ def sellInventory(modList, money):
 
 def mine(n,b,p,f):
 
-    global mineText,inventory
+    global inventory, invSize
 
     invSize = 0
 
@@ -124,17 +136,15 @@ def mine(n,b,p,f):
 
                 ranMat = choice(inventory)
 
-                itemAmount[ranMat] -= 1
+                if itemAmount[ranMat] > 0:
+
+                    itemAmount[ranMat] -= 1
 
                 invSize = 0
 
                 for mineral in itemAmount:
 
                     invSize += itemAmount[mineral]
-
-    else:
-
-        mineText = "Inventory Full!"
 
 
 def mergeSort(sortList):
@@ -293,7 +303,7 @@ class NotAShip:
     
     def update(self):
 
-        global mineShow,display_width,display_height,money,fuel,mineArg
+        global mineShow,display_width,display_height,money,fuel,mineArg,shopNote,invNote,invSize
 
         self.disX -= player.accX #Evaluate difference in object to player position on the screen
         self.disY -= player.accY
@@ -304,15 +314,26 @@ class NotAShip:
 
         if abs(self.disX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/2-display_height/2) < 150:
 
+            mineShow = True
+
             if self.shop:
 
-                money = sellInventory(inventory,money)
+                if invSize>0:
+                    money = sellInventory(inventory,money)
+                    invNote = True
+                    
+
                 fuel = 100
+                shopNote = True
 
             else:
 
-                mineShow = True
                 mineArg = [self.n,self.b,self.p,self.f]
+                shopNote = False
+                invNote = False
+
+
+
 
 def ranValue():
     global inventory, itemCost
@@ -438,10 +459,6 @@ while not gameExit:
 
     mergeSort(inventory)
 
-    if (math.floor(texX) < 100 and math.floor(texX) > -100) and (math.floor(texY) < 100 and math.floor(texY) > -100) and texSpeed == 0:
-        money = sellInventory(inventory, money)
-        done = False
-
     text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s" + "        Credits: " + str(money) + "        Fuel:" + str(texFuel) + "%", 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
     textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
@@ -460,7 +477,6 @@ while not gameExit:
     else:
         timeR = 0
         ranValue()
-        print(itemCost)
     
     
 
@@ -510,12 +526,51 @@ while not gameExit:
 
     if mineShow == True:
 
+        noteColour = (200, 160, 80)
+
+        fillColour = (20,50,150)
+
+        showBar = True
+
+        if invSize == 20:
+
+            mineText = "Inventory Full!"
+            
+        elif invNote == True and gCredits != 0:
+
+            mineText = "Gained " + str(gCredits) + " credits!"
+
+            noteColour = (150,255,150)
+            
+        elif not shopNote:
+
+            mineText = "Press M to mine"
+
+        else:
+
+            mineText = "Sell or refuel here!"
+    elif fuel<25:
+
+        mineText = "Warning: Low Fuel!"
+
+        fillColour = (255,50,20)
+
+        noteColour = (200, 160, 80)
+
+        showBar = True
+
+    else:
+
+        showBar = False
+
+    if showBar:
+        
         mineBar = pygame.Surface((display_width*0.3,45)) 
         mineBar.set_alpha(150) #Make bar partly transparent
-        mineBar.fill((20,50,150)) #Colour bar blue           
+        mineBar.fill(fillColour)          
         gameDisplay.blit(mineBar, (display_width*0.35,100)) 
-    
-        text = font.render(mineText, 1, (200, 160, 80)) #Render GUI text, floor division used for variables for readability
+
+        text = font.render(mineText, 1, noteColour) #Render GUI text, floor division used for variables for readability
         textRect = text.get_rect()
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
         textRect.centery = (math.floor(125))
