@@ -1,10 +1,6 @@
-import pygame
-import time
+import pygame, time, math, menuv2, os, sys
 from random import *
-import math
-import menuv2
-import os
-import sys
+
 
 pygame.mixer.pre_init(44100,16,2,4096)#Background Music
 pygame.init()
@@ -13,6 +9,7 @@ pygame.init()
 pygame.mixer.music.load("backgroundsongofchoice.mp3")#As you probably know song should be in the game folder
 pygame.mixer.music.set_volume(1)#Volume
 pygame.mixer.music.play(-1)#This loops the song
+
 
 #Colour palette 
 white = (255,255,255)
@@ -355,6 +352,9 @@ Object3 = NotAShip(-500,-500,"mars.jpg",3,2,1,1) #Places a Mars object
 
 fullscreenStat = False
 
+
+
+ 
 while not gameExit:
     
     if gameOver == True:
@@ -419,6 +419,8 @@ while not gameExit:
         if event.type == pygame.QUIT:
                 gameOver = True
                 
+   
+        
        
     
     #Undraw objects with black, call all update methods for objects
