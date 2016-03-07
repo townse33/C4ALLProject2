@@ -35,6 +35,8 @@ texFuel = 100
 
 mineArg = [0,0,0,0]
 
+timeR = 0
+
 
 #Window dimensions; resolution
 display_width = 1200
@@ -291,7 +293,7 @@ class NotAShip:
     
     def update(self):
 
-        global mineShow,display_width,display_height,money,fuel,mineArg,wF,hF
+        global mineShow,display_width,display_height,money,fuel,mineArg
 
         self.disX -= player.accX #Evaluate difference in object to player position on the screen
         self.disY -= player.accY
@@ -312,6 +314,11 @@ class NotAShip:
                 mineShow = True
                 mineArg = [self.n,self.b,self.p,self.f]
 
+def ranValue():
+    global inventory, itemCost
+    for item in inventory:
+        itemCost[item] = randint(10,100)
+    
 #Game states
 gameExit = False
 gameOver = False
@@ -349,8 +356,6 @@ while not gameExit:
                     player.rotR()
             if event.key == pygame.K_w: #W accelerates the ship
                     player.fwd()
-            if event.key == pygame.K_q: #Quit (useful for fullscreen)
-                    gameOver = True
             if event.key == pygame.K_s:
                     player.bwd()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
@@ -372,8 +377,8 @@ while not gameExit:
                     else:
                        
                             winMode = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.FULLSCREEN #Set display variable to include fullscreen
-                            display_width = 1920
-                            display_height = 1080
+                            display_width = 1200
+                            display_height = 800
                             gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #Generate new display fullscreen
                             #player.reload()
                             fullscreenStat = True
@@ -449,9 +454,15 @@ while not gameExit:
     inventoryBar.set_alpha(150) #Make bar partly transparent
     inventoryBar.fill((20,50,150)) #Colour bar blue           
     gameDisplay.blit(inventoryBar, (display_width*0.35,5)) #Render GUI bar at top of screen (previous entry said bottom of screen, despite position at top)
-    
-    
 
+    if timeR < 60000:
+        timeR = pygame.time.get_ticks()
+    else:
+        timeR = 0
+        ranValue()
+        print(itemCost)
+    
+    
 
     """
     inventoryItem1 = pygame.Surface((80,80))
@@ -516,10 +527,10 @@ while not gameExit:
         player.accY = 0
         player.dir = 0
 
-        mineBar = pygame.Surface((display_width*0.4,100)) 
-        mineBar.set_alpha(200) #Make bar partly transparent
-        mineBar.fill((255,50,20)) #Colour bar blue           
-        gameDisplay.blit(mineBar, (display_width*0.3,display_height*0.5))
+        loseBar = pygame.Surface((display_width*0.4,100)) 
+        loseBar.set_alpha(200) #Make bar partly transparent
+        loseBar.fill((255,50,20)) #Colour bar blue           
+        gameDisplay.blit(loseBar, (display_width*0.3,display_height*0.5))
 
         font.set_bold(True)
     
