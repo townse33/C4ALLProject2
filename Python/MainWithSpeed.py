@@ -8,8 +8,6 @@ pygame.init()
 #Background Music
 pygame.mixer.music.load("backgroundsongofchoice.mp3")#As you probably know song should be in the game folder
 pygame.mixer.music.set_volume(1)#Volume
-pygame.mixer.music.play(-1)#This loops the song
-
 
 #Colour palette 
 white = (255,255,255)
@@ -367,11 +365,12 @@ while not gameExit:
     #Obtain all user events as a sequence and put them in a for loop
     for event in pygame.event.get():
         pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_LCTRL] and pressed[pygame.K_m]: #if CTRL and M pressed...
-            menuv2.mainMenu() #...Go back to menu
+            
 
+     
         if event.type == pygame.KEYDOWN: #When key is down
-                
+               
+
             
             if event.key == pygame.K_a: #A button turns ship left
                     player.rotL()
