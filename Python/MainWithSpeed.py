@@ -11,7 +11,7 @@ pygame.init()
 
 #Background Music
 pygame.mixer.music.load("backgroundsongofchoice.mp3")#As you probably know song should be in the game folder
-pygame.mixer.music.set_volume(0.1)#Volume
+pygame.mixer.music.set_volume(1)#Volume
 pygame.mixer.music.play(-1)#This loops the song
 
 #Colour palette 
@@ -43,13 +43,11 @@ timeN = 0
 
 gCredits = 0
 
-
 #Window dimensions; resolution
 display_width = 1200
 display_height = 800
 
 winMode = pygame.DOUBLEBUF | pygame.HWSURFACE #| pygame.FULLSCREEN #Enable hardware acceleration, remove first comment for fullscreen
-
 
 gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #Initialise pygame window
 
@@ -72,14 +70,17 @@ texSpeed = 0 #Player speed for text
 #Inventory setup
 itemCost = {"nebulium":39, "bismuth":81, "polonium":56, "francium":93} # Costs of all the items that can be collected
 # nebulium == yellow, bismuth == red, polonium == green, francium == blue
-printList = ["nebulium", "bismuth", "polonium", "francium"]
+
+printList = ["nebulium", "bismuth", "polonium", "francium"] # Used to print total collected items at end
 inventory = ["nebulium", "bismuth", "polonium", "francium"] # Inventory items collected by the user
 itemAmount = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0} #How much of each item the user has
+
 money = 0 # Credits owned by the user
 alphaOrNumeric = True   #True indicates alphabetic, False indicates Numeric
-totalItems = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0}
+totalItems = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0} #Total amount of items collected by user, cumulative
 
 def addToInventory(modList, item):
+    """Not used but could still be implemented"""
     modList.append(item)
 
 def sellInventory(modList, money):
@@ -93,17 +94,17 @@ def sellInventory(modList, money):
         money += itemCost[ i ] * itemAmount[ i ]
         gCredits += itemCost[ i ] * itemAmount[ i ]
         
-    itemAmount["nebulium"] = 0
+    itemAmount["nebulium"] = 0 #Defaults the dictionary amounts to 0, removing them from the inventory
     itemAmount["bismuth"] = 0
     itemAmount["polonium"] = 0
     itemAmount["francium"] = 0
 
     invSize = 0
     
+    return(money)
+
     # Found that iterating over the list caused a problem with List Aliasing
     # and removing items from the list being iterated over
-    
-    return(money)
 
 def mine(n,b,p,f):
 
@@ -131,7 +132,6 @@ def mine(n,b,p,f):
             totalItems["bismuth"] += bis
             totalItems["polonium"] += pol
             totalItems["francium"] += fra
-            
 
             invSize = 0
 
@@ -153,11 +153,8 @@ def mine(n,b,p,f):
 
                     invSize += itemAmount[mineral]
 
-            
-
-            
-
 def mergeSort(sortList):
+    """ Will order the items of any imported list alphabetically, in ascending order"""
 
     if len(sortList)>1:
         middle = len(sortList) // 2
@@ -190,25 +187,27 @@ def mergeSort(sortList):
             c += 1
 
 def bubbleSort(sortList):
-
+    """ Will order the items of any imported list alphabetically, in ascending order"""
+    
     for i in range(len(sortList)):
         for j in range(len(sortList)-1-i):
             if itemAmount[ sortList[j] ] > itemAmount[ sortList[j + 1] ]:
                 sortList[j], sortList[j+1] = sortList[j+1], sortList[j]
 
-
 def binarySearch(searchValue, array):
+    """ Not used, however could be implemented later"""
     first = 0
     last = len(array) - 1
     beenFound = False
-
+	
     while first <= last and not beenFound:
         midpoint = (first + last)//2
 
         if array[midpoint] == searchValue:
             result = str(searchValue) + " has been found"
             beenFound = True
-
+            
+	    
         else:
             if searchValue < array[midpoint]:
                 last = midpoint-1
@@ -244,6 +243,7 @@ class Ship:
 
             self.adv = False #Is ship accelerating?
             self.decc = False
+            
 
             #store ship image dimensions
             self.sW, self.sH = Ship.get_size()
@@ -270,7 +270,6 @@ class Ship:
 
                 self.accX = self.accX*0.99
                 self.accY = self.accY*0.99
-
 
             #Rotate ship to current direction
             Ship = pygame.transform.rotate(pygame.image.load("spaceship.png"),self.dir)
@@ -301,7 +300,7 @@ class Ship:
             #centre ship by subtracting half ship size from given dimensions
             gameDisplay.blit(Ship, (self.dW/2-self.sW*0.5,self.dH/2-self.sH*0.5))"""
 
-
+            
 class NotAShip:
     """Placeholder class used for objects that are not the player, i.e. ones that need scrolling"""
 
@@ -332,7 +331,7 @@ class NotAShip:
 
         universe.append(self)
         inMemory.append(self)
-
+    
     def update(self):
 
         global mineShow,display_width,display_height,money,fuel,mineArg,shopNote,invNote,invSize
@@ -391,7 +390,6 @@ while not gameExit:
         #Finishes the game by printing to the console and ending the loop
         print("GameOver")
         gameExit = True
-        
 
     #Obtain all user events as a sequence and put them in a for loop
     for event in pygame.event.get():
@@ -400,8 +398,6 @@ while not gameExit:
             menuv2.mainMenu() #...Go back to menu
 
         if event.type == pygame.KEYDOWN: #When key is down
-                
-            
             if event.key == pygame.K_a: #A button turns ship left
                     player.rotL()
             if event.key == pygame.K_d: #D button turns ship right
@@ -411,9 +407,7 @@ while not gameExit:
             if event.key == pygame.K_s:
                     player.bwd()
             if event.key == pygame.K_m:
-    
                         mine(mineArg[0],mineArg[1],mineArg[2],mineArg[3])
-
                         mineText = "Press M to mine"
             if event.key == pygame.K_ESCAPE:
                     menuv2.pauseMenu()
@@ -448,8 +442,6 @@ while not gameExit:
         if event.type == pygame.QUIT:
                 gameOver = True
                 
-       
-    
     #Undraw objects with black, call all update methods for objects
     gameDisplay.fill(black)
 
@@ -467,10 +459,7 @@ while not gameExit:
 
     player.update() #Update player object
 
-    
-
     font = pygame.font.Font("trench.otf", 36) #Defines sci-fi font from external file
-
 
     #Intentionally slow down text updates, it is very distracting and hard to read when they are updated once per frame
     if pygame.time.get_ticks() % 4 == 0:
@@ -487,7 +476,6 @@ while not gameExit:
     statBar.fill((20,50,150)) #Colour bar blue           
     gameDisplay.blit(statBar, (0,display_height-36)) #Render GUI bar at bottom of screen   
 
-
     mergeSort(inventory)
 
     text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s" + "        Credits: " + str(money) + "        Fuel:" + str(texFuel) + "%", 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
@@ -497,7 +485,6 @@ while not gameExit:
     gameDisplay.blit(text, textRect)
 
     #inventory bar
-
     inventoryBar = pygame.Surface((display_width*0.3,90)) #Create a stats GUI bar as a surface
     inventoryBar.set_alpha(150) #Make bar partly transparent
     inventoryBar.fill((20,50,150)) #Colour bar blue           
@@ -636,20 +623,22 @@ while not gameExit:
         #Sorting printed to display
         for event in pygame.event.get():
 
-            if event.type == pygame.KEYUP:
+            if event.type == pygame.KEYDOWN:
 
                 if event.key == pygame.K_ESCAPE:
-                    os.execl(sys.executable, sys.executable, * sys.argv)
+                    os.execl(sys.executable, sys.executable, * sys.argv) #Program exits if ESC pressed
 
-                if event.key == pygame.K_e:
+                if event.key == pygame.K_e: # Next 8 lines used to toggle between bubbleSort and MergeSort with one button press
                     if alphaOrNumeric == True:
                         bubbleSort(printList)
-                        alphaOrNumeric = False
+                        alphaOrNumeric = False # Changes false to true, the 'toggle'
         
                     elif alphaOrNumeric == False:
                         mergeSort(printList)
                         alphaOrNumeric = True
-                
+
+        # Below is a visual representation of the sorted list above, orders based on whats in the list
+        # Could have been a FOR loop but works so left for now
         text = font.render("Total Items Collected", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
         textRect = text.get_rect()
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
@@ -696,3 +685,10 @@ while not gameExit:
 
 #Close window, end game
 pygame.quit()
+
+
+
+                
+            
+    
+    
