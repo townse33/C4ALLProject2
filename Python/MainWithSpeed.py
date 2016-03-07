@@ -19,7 +19,7 @@ white = (255,255,255)
 black = (0,0,0)
 red = (255,0,0)
 green = (0,155,0)
-blue = (0,0,255)
+pblue = (0,0,255)
 
 done = False
 mineShow = False
@@ -92,7 +92,7 @@ def sellInventory(modList, money):
 
 def mine(n,b,p,f):
 
-    global mineText
+    global mineText,inventory
 
     invSize = 0
 
@@ -120,9 +120,15 @@ def mine(n,b,p,f):
 
             while invSize > 20:
 
-                ranMat = random.choice(itemAmount)
+                ranMat = choice(inventory)
 
                 itemAmount[ranMat] -= 1
+
+                invSize = 0
+
+                for mineral in itemAmount:
+
+                    invSize += itemAmount[mineral]
 
     else:
 
@@ -285,7 +291,7 @@ class NotAShip:
     
     def update(self):
 
-        global mineShow,display_width,display_height,money,fuel,mineArg
+        global mineShow,display_width,display_height,money,fuel,mineArg,wF,hF
 
         self.disX -= player.accX #Evaluate difference in object to player position on the screen
         self.disY -= player.accY
@@ -355,13 +361,16 @@ while not gameExit:
             if event.key == pygame.K_ESCAPE:
                     menuv2.pauseMenu()
             if event.key == pygame.K_p: #P for fullscreen lol
+                    
                     if fullscreenStat == True:
+                         
                             winMode = pygame.DOUBLEBUF | pygame.HWSURFACE
                             display_width = 1200
                             display_height = 800
                             gameDisplay = pygame.display.set_mode((display_width, display_height),winMode)
                             fullscreenStat = False
                     else:
+                       
                             winMode = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.FULLSCREEN #Set display variable to include fullscreen
                             display_width = 1920
                             display_height = 1080
