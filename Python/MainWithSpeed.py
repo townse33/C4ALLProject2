@@ -1,6 +1,6 @@
 import pygame
 import time
-import random
+from random import *
 import math
 import menuv2
 
@@ -20,6 +20,8 @@ green = (0,155,0)
 blue = (0,0,255)
 
 done = False
+mineShow = False
+mineText = "Press M to mine"
 #Muted colours for inventory items
 invred = (195,60,60)
 invyellow = (190,210,110)
@@ -81,18 +83,44 @@ def sellInventory(modList, money):
     
     return(money)
 
-def pickup():
-    neb = random.choice((0, 0, 1, 2, 3, 4, 5))
-    bis = random.choice((0, 0, 0, 1, 2))
-    pol = random.choice((0, 0, 0, 1, 2, 3))
-    fra = random.choice((0, 0, 0, 0, 1, 2))
+def mine(n,b,p,f):
 
-    itemAmount["nebulium"] += neb
-    itemAmount["bismuth"] += bis
-    itemAmount["polonium"] += pol
-    itemAmount["francium"] += fra
+    global mineText, mineState
 
-    
+    invSize = 0
+
+    for mineral in itemAmount:
+
+        invSize += itemAmount[mineral]
+
+    if invSize < 20:
+
+            neb = randint(0,n)
+            bis = randint(0,b)
+            pol = randint(0,p)
+            fra = randint(0,f)
+
+            itemAmount["nebulium"] += neb
+            itemAmount["bismuth"] += bis
+            itemAmount["polonium"] += pol
+            itemAmount["francium"] += fra
+
+            invSize = 0
+
+            for mineral in itemAmount:
+
+                invSize += itemAmount[mineral]
+
+            while invSize > 20:
+
+                ranMat = random.choice(itemAmount)
+
+                itemAmount[ranMat] -= 1
+
+    else:
+
+        mineText = "Inventory Full!"
+
 
 def mergeSort(sortList):
 
@@ -172,8 +200,8 @@ class Ship:
             
             if self.adv == True:
                 
-                self.accX += -math.sin(math.radians(self.dir))*0.005 #Sine rule to find change in player X acceleration
-                self.accY += -math.sin(math.radians(90-self.dir))*0.005 #Sine rule to find change in player Y acceleration
+                self.accX -= math.sin(math.radians(self.dir))*0.005 #Sine rule to find change in player X acceleration
+                self.accY -= math.sin(math.radians(90-self.dir))*0.005 #Sine rule to find change in player Y acceleration
 
             if self.decc == True:
 
@@ -217,7 +245,7 @@ class Ship:
 class NotAShip:
     """Placeholder class used for objects that are not the player, i.e. ones that need scrolling"""
 
-    def __init__(self, posX, posY, img, GM):
+    def __init__(self, posX, posY, img, N=0,B=0,P=0,F=0,shop=False):
 
         global universe, inMemory
 
@@ -227,11 +255,18 @@ class NotAShip:
 
         self.posX = posX
         self.posY = posY
-        self.disX = posX + 5*self.sW/6 #Centering only affects an object's initial screen position so this is done before the blit, multipliers to compensate for pygame's bad centering
-        self.disY = posY + 2*self.sH/3
+        self.disX = posX + self.sW/2  #Centering only affects an object's initial screen position so this is done before the blit, multipliers to compensate for pygame's bad centering
+        self.disY = posY + self.sH /2
+
+        
         self.img = "planets/" + img #We maintain the image path as an attribute so it need only be provided once
-        self.GM = GM*2000 #Gravitational constant
+        self.nFreq = N
+        self.bFreq = B
+        self.pFreq = P
+        self.fFreq = F
         self.inMem = True #Planet starts in memory
+
+        self.shop = shop
 
         gameDisplay.blit(Object, (self.disX,self.disY))
 
@@ -241,16 +276,34 @@ class NotAShip:
     
     def update(self):
 
-        self.disX += -player.accX #Evaluate difference in object to player position on the screen
-        self.disY += -player.accY
+        global mineShow,display_width,display_height,money
+
+        self.disX -= player.accX #Evaluate difference in object to player position on the screen
+        self.disY -= player.accY
 
         Object = pygame.image.load(self.img)
 
-        self.dxPlayer = -(self.disX - 5*self.sW/6) #X difference in player/object position
-        self.dyPlayer = self.disY - 2*self.sH/3 #Y difference in player/object position
-        self.disPlayer = math.sqrt(self.dxPlayer**2+self.dyPlayer**2) #Pythagoras Theorem used to calculate distance between object and player
-
         gameDisplay.blit(Object, (math.floor(self.disX),math.floor(self.disY))) #We use floor division as we cannot have fractional pixels
+
+
+        if abs(self.disX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/2-display_height/2) < 150:
+
+            if self.shop:
+
+                money = sellInventory(inventory,money)
+
+            else:
+
+                mineShow = True
+
+                for event in pygame.event.get():
+
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                        
+                        mine(self.nFreq,self.bFreq,self.pFreq,self.fFreq)
+
+                        mineText = "Press M to mine"
+            
 
 
 
@@ -258,19 +311,12 @@ class NotAShip:
 gameExit = False
 gameOver = False
 
-#Screen position variables: DO NOT CONFUSE WITH PLAYER POSITION
-scrPos_x = display_width/2
-scrPos_y = display_height/2
-
 #init player
-player = Ship(scrPos_x, scrPos_y)
+player = Ship(display_width/2, display_height/2)
 
-Object1 = NotAShip(0, 0,"earth.jpg",0.4) #Places aobject
-Object2 = NotAShip(600,600,"moon.jpg",0.05) #Places a Moon object
-Object3 = NotAShip(-500,-500,"mars.jpg",0.3) #Places a Mars object
-
-
-
+Object1 = NotAShip(0, 0,"earth.jpg",0,0,0,0,True) #Places aobject
+Object2 = NotAShip(600,600,"moon.jpg",1) #Places a Moon object
+Object3 = NotAShip(-500,-500,"mars.jpg",3,2,1,1) #Places a Mars object
 
 fullscreenStat = False
 
@@ -373,10 +419,6 @@ while not gameExit:
     if (math.floor(texX) < 100 and math.floor(texX) > -100) and (math.floor(texY) < 100 and math.floor(texY) > -100) and texSpeed == 0:
         money = sellInventory(inventory, money)
         done = False
-    
-    while done == False and (math.floor(texX) > -790 and math.floor(texX) < -550) and (math.floor(texY) > -680 and math.floor(texY) < -410) and texSpeed == 0:
-        pickup()
-        done = True
 
     text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s" + "        Credits: " + str(money), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
@@ -438,6 +480,21 @@ while not gameExit:
     textRect.centery = (math.floor(35))
     gameDisplay.blit(text, textRect)
 
+    if mineShow == True:
+
+        mineBar = pygame.Surface((display_width*0.3,45)) 
+        mineBar.set_alpha(150) #Make bar partly transparent
+        mineBar.fill((20,50,150)) #Colour bar blue           
+        gameDisplay.blit(mineBar, (display_width*0.35,100)) 
+    
+        text = font.render(mineText, 1, (200, 160, 80)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(125))
+        gameDisplay.blit(text, textRect)
+
+    mineShow = False
+    
     #Update display
     pygame.display.update()
 
