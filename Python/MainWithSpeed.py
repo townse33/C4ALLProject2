@@ -11,7 +11,7 @@ pygame.init()
 
 #Background Music
 pygame.mixer.music.load("backgroundsongofchoice.mp3")#As you probably know song should be in the game folder
-pygame.mixer.music.set_volume(1)#Volume
+pygame.mixer.music.set_volume(0.1)#Volume
 pygame.mixer.music.play(-1)#This loops the song
 
 #Colour palette 
