@@ -191,7 +191,7 @@ def bubbleSort(sortList):
     
     for i in range(len(sortList)):
         for j in range(len(sortList)-1-i):
-            if itemAmount[ sortList[j] ] > itemAmount[ sortList[j + 1] ]:
+            if totalItems[ sortList[j] ] > totalItems[ sortList[j + 1] ]:
                 sortList[j], sortList[j+1] = sortList[j+1], sortList[j]
 
 def binarySearch(searchValue, array):
