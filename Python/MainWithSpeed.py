@@ -666,8 +666,8 @@ def cpuEvents():
         
         #Allows a user to close the window using the close button
             if event.type == pygame.QUIT:
-                gameOver = True
-            
+                os.execl(sys.executable, sys.executable, * sys.argv)
+                
 timeEnd = True
 
 def render():
@@ -1029,15 +1029,9 @@ def render():
 
     #Clock ticks to run at FPS
 
-while not gameExit:
+while True:
 
     mineShow = False
-    
-    if gameOver == True:
-
-        #Finishes the game by printing to the console and ending the loop
-        print("GameOver")
-        gameExit = True
 
     #Obtain all user events as a sequence and put them in a for loop
     for event in pygame.event.get():
@@ -1091,8 +1085,8 @@ while not gameExit:
 
         #Allows a user to close the window using the close button
         if event.type == pygame.QUIT:
-                gameOver = True
-                
+            os.execl(sys.executable, sys.executable, * sys.argv)
+                        
     #Undraw objects with black, call all update methods for objects
                 
     render()
