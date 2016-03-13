@@ -51,10 +51,10 @@ title = title_font.render("VRBH GAME", True, (255, 255, 255))
 
 #calls the 'Option' class with three objects
 
-option1 = Option("NEW GAME", (515, 350))
+option1 = Option("NEW GAME", (515 ,350))
 option2 = Option("LEADERBOARDS", (480, 400))
 option3 = Option("QUIT", (563, 450))
-option4 = Option("RESUME GAME", (515,350))
+option4 = Option("RESUME GAME", (490ss,400))
 
 #loads background image and converts it
 bg = pygame.image.load("background.jpg").convert()
