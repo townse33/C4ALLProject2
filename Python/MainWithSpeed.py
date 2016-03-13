@@ -276,7 +276,7 @@ class Ship:
                 self.accX -= math.sin(math.radians(self.dir))*0.02 #Sine rule to find change in player X acceleration
                 self.accY -= math.sin(math.radians(90-self.dir))*0.02 #Sine rule to find change in player Y acceleration
 
-                fuel -= 0.25
+                fuel -= 0.15
 
             if self.decc == True:
 
@@ -1054,6 +1054,7 @@ while not gameExit:
                         mineText = "Press M to mine"
             if event.key == pygame.K_e:
                         mode = "CPU"
+                        fuel = 100
             if event.key == pygame.K_ESCAPE:
                     menuv2.pauseMenu()
             if event.key == pygame.K_p: #P for fullscreen lol
