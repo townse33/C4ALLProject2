@@ -51,8 +51,8 @@ title = title_font.render("Star Hunt", True, (255, 255, 255))
 
 #calls the 'Option' class with three objects
 
-option1 = Option("NEW GAME", (515 ,350))
-option2 = Option("LEADERBOARDS", (480, 400))
+option1 = Option("NEW GAME", (515 ,400))
+#option2 = Option("LEADERBOARDS", (480, 400))
 option3 = Option("QUIT", (563, 450))
 option4 = Option("RESUME GAME", (490,400))
 
@@ -72,15 +72,15 @@ def mainMenu():
         screen.blit(title, (465, 15)) #Blits title to screen
 
         #if the mouse 'collides' with the text, hovered will be equal to True
-        for option in option1, option2, option3:
+        for option in option1, option3:
             if option.rect.collidepoint(pygame.mouse.get_pos()):
                 option.mouseHover = True
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if option1.rect.collidepoint(pygame.mouse.get_pos()) == True:
                             import MainWithSpeed
-                        elif option2.rect.collidepoint(pygame.mouse.get_pos()) == True:
-                            print(execfile("script2.py"))
+                        #elif option2.rect.collidepoint(pygame.mouse.get_pos()) == True:
+                            #print(execfile("script2.py"))
                         else:
                             loop = False
                     
