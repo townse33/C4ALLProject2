@@ -60,7 +60,7 @@ winMode = pygame.DOUBLEBUF | pygame.HWSURFACE #| pygame.FULLSCREEN #Enable hardw
 gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #Initialise pygame window
 
 #Title and caption
-pygame.display.set_caption("C4 ALL Project 2")
+pygame.display.set_caption("C4 ALL Project 2: Star Hunt")
 
 #Time Variables, initialise FPS clock
 FPS = 150 #One frame = Ten milliseconds
@@ -361,9 +361,9 @@ class NotAShip:
 
             pygame.Surface.convert(Object)
 
-            gameDisplay.blit(Object, (math.floor(self.disX+self.sW*0.38),math.floor(self.disY+self.sH*0.06))) #We use floor division as we cannot have fractional pixels
+            gameDisplay.blit(Object, (math.floor(self.disX+self.sW*0.38),math.floor(self.disY-self.sH*0.04))) #We use floor division as we cannot have fractional pixels
 
-            if abs(self.posX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/2-display_height/2) < 150:
+            if abs(self.disX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/3-display_height/2) < 150:
 
                 mineShow = True
                 fuel = 100
