@@ -12,6 +12,10 @@ class node():
 
         self.h = ((self.x-goal.x)**2+(self.y-goal.y)**2)**0.5
 
+def addNode(ID,x,y,n):
+    ID = node(x,y,n)
+    return ID
+
 def aStar(nodeDict,start,goal): 
 
     for n in nodeDict:

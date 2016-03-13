@@ -5,14 +5,17 @@ import math
 import menuv2
 import os
 import sys
+from astar import *
 
 pygame.mixer.pre_init(44100,16,2,4096)#Background Music
 pygame.init()
 
 #Background Music
 pygame.mixer.music.load("backgroundsongofchoice.mp3")#As you probably know song should be in the game folder
-pygame.mixer.music.set_volume(0.1)#Volume
+pygame.mixer.music.set_volume(0)#Volume
 pygame.mixer.music.play(-1)#This loops the song
+
+nList = False
 
 #Colour palette 
 white = (255,255,255)
@@ -33,13 +36,18 @@ invSize = 0
 invNote = False
 shopNote = False
 
+mode="Player"
+
 fuel = 100
 texFuel = 100
 
 mineArg = [0,0,0,0]
 
 timeR = 0
+timeR2 = 0
 timeN = 0
+timeF = 0
+timeF2 = 0
 
 gCredits = 0
 
@@ -55,13 +63,13 @@ gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #
 pygame.display.set_caption("C4 ALL Project 2")
 
 #Time Variables, initialise FPS clock
-FPS = 100 #One frame = Ten milliseconds
+FPS = 150 #One frame = Ten milliseconds
 clock = pygame.time.Clock()
 
 #Universe stores all object information, inMemory determines what to load
 universe = []
 inMemory = []
-memLimit = 50 #How many objects to leave in memory
+memLimit = 6 #How many objects to leave in memory
 
 texX = 0 #Player X position variable for text, for controlled updating
 texY = 0 #Player Y position for text
@@ -79,20 +87,24 @@ money = 0 # Credits owned by the user
 alphaOrNumeric = True   #True indicates alphabetic, False indicates Numeric
 totalItems = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0} #Total amount of items collected by user, cumulative
 
+idCounter = 0
+
+multi = 1
+
 def addToInventory(modList, item):
     """Not used but could still be implemented"""
     modList.append(item)
 
 def sellInventory(modList, money):
-    global invSize, gCredits
+    global invSize, gCredits, multi
     """ Will output the amount of money gained from selling all the items
     as well as removing all the items sold from the inventory """
 
     gCredits = 0
     
     for i in modList: # Adds money, using the itemCost dictionary
-        money += itemCost[ i ] * itemAmount[ i ]
-        gCredits += itemCost[ i ] * itemAmount[ i ]
+        money += itemCost[ i ] * itemAmount[ i ] * multi
+        gCredits += itemCost[ i ] * itemAmount[ i ] * multi
         
     itemAmount["nebulium"] = 0 #Defaults the dictionary amounts to 0, removing them from the inventory
     itemAmount["bismuth"] = 0
@@ -191,7 +203,7 @@ def bubbleSort(sortList):
     
     for i in range(len(sortList)):
         for j in range(len(sortList)-1-i):
-            if totalItems[ sortList[j] ] > totalItems[ sortList[j + 1] ]:
+            if itemAmount[ sortList[j] ] > itemAmount[ sortList[j + 1] ]:
                 sortList[j], sortList[j+1] = sortList[j+1], sortList[j]
 
 def binarySearch(searchValue, array):
@@ -261,10 +273,10 @@ class Ship:
             
             if self.adv == True:
                 
-                self.accX -= math.sin(math.radians(self.dir))*0.005 #Sine rule to find change in player X acceleration
-                self.accY -= math.sin(math.radians(90-self.dir))*0.005 #Sine rule to find change in player Y acceleration
+                self.accX -= math.sin(math.radians(self.dir))*0.02 #Sine rule to find change in player X acceleration
+                self.accY -= math.sin(math.radians(90-self.dir))*0.02 #Sine rule to find change in player Y acceleration
 
-                fuel -= 0.1
+                fuel -= 0.25
 
             if self.decc == True:
 
@@ -306,7 +318,7 @@ class NotAShip:
 
     def __init__(self, posX, posY, img, N=0,B=0,P=0,F=0,shop=False):
 
-        global universe, inMemory
+        global universe, inMemory, idCounter
 
         Object = pygame.image.load("planets/" + img) #This time, we take an image as a string as a parameter too
 
@@ -323,47 +335,56 @@ class NotAShip:
         self.b = B
         self.p = P
         self.f = F
-        self.inMem = True #Planet starts in memory
+        self.inMem = False #Planet does not start in memory
+        self.id = idCounter
+
+        idCounter +=1
 
         self.shop = shop
 
         gameDisplay.blit(Object, (self.disX,self.disY))
 
         universe.append(self)
-        inMemory.append(self)
     
-    def update(self):
+    def update(self,toBlit):
 
         global mineShow,display_width,display_height,money,fuel,mineArg,shopNote,invNote,invSize
 
-        self.disX -= player.accX #Evaluate difference in object to player position on the screen
-        self.disY -= player.accY
+        if not(toBlit):
 
-        Object = pygame.image.load(self.img)
+            self.disX -= player.accX #Evaluate difference in object to player position on the screen
+            self.disY -= player.accY
 
-        gameDisplay.blit(Object, (math.floor(self.disX),math.floor(self.disY))) #We use floor division as we cannot have fractional pixels
+        if toBlit:
+            
+            Object = pygame.image.load(self.img)
 
-        if abs(self.disX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/2-display_height/2) < 150:
+            pygame.Surface.convert(Object)
 
-            mineShow = True
+            gameDisplay.blit(Object, (math.floor(self.disX+self.sW/3),math.floor(self.disY+self.sH/3))) #We use floor division as we cannot have fractional pixels
 
-            if self.shop:
+            if abs(self.disX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/2-display_height/2) < 150:
 
-                mineArg = [0,0,0,0]
-
-                if invSize>0:
-                    money = sellInventory(inventory,money)
-                    invNote = True
-                    
-
+                mineShow = True
                 fuel = 100
-                shopNote = True
 
-            else:
+                if self.shop:
 
-                mineArg = [self.n,self.b,self.p,self.f]
-                shopNote = False
-                invNote = False
+                    mineArg = [0,0,0,0]
+
+                    if invSize>0:
+                        money = sellInventory(inventory,money)
+                        invNote = True
+                        
+
+                    shopNote = True
+
+                else:
+
+                    mineArg = [self.n,self.b,self.p,self.f]
+                    shopNote = False
+                    invNote = False
+                    
 
 def ranValue():
     global inventory, itemCost
@@ -377,85 +398,322 @@ gameOver = False
 #init player
 player = Ship(display_width/2, display_height/2)
 
-Object1 = NotAShip(0, 0,"earth.jpg",0,0,0,0,True) #Places aobject
-Object2 = NotAShip(600,600,"moon.jpg",1) #Places a Moon object
-Object3 = NotAShip(-500,-500,"mars.jpg",3,2,1,1) #Places a Mars object
+#Object1 = NotAShip(0, 0,"earth.jpg",0,0,0,0,True) #Places aobject
+#Object2 = NotAShip(600,600,"moon.jpg",1) #Places a Moon object
 
 fullscreenStat = False
 
-while not gameExit:
+multiEnable = False
+
+
+
+def secGen(startW,endW,startH,endH,planetNo,spread):
     
-    if gameOver == True:
+    global planetID
 
-        #Finishes the game by printing to the console and ending the loop
-        print("GameOver")
-        gameExit = True
+    testList = list()
 
-    #Obtain all user events as a sequence and put them in a for loop
-    for event in pygame.event.get():
-        pressed = pygame.key.get_pressed()
-        if pressed[pygame.K_LCTRL] and pressed[pygame.K_m]: #if CTRL and M pressed...
-            menuv2.mainMenu() #...Go back to menu
+    for k in range(planetNo):
+    
+        ranX = randint(startW,endW)
+        ranY = randint(startH,endH)
 
-        if event.type == pygame.KEYDOWN: #When key is down
-            if event.key == pygame.K_a: #A button turns ship left
-                    player.rotL()
-            if event.key == pygame.K_d: #D button turns ship right
-                    player.rotR()
-            if event.key == pygame.K_w: #W accelerates the ship
-                    player.fwd()
-            if event.key == pygame.K_s:
-                    player.bwd()
-            if event.key == pygame.K_m:
-                        mine(mineArg[0],mineArg[1],mineArg[2],mineArg[3])
-                        mineText = "Press M to mine"
-            if event.key == pygame.K_ESCAPE:
-                    menuv2.pauseMenu()
-            if event.key == pygame.K_p: #P for fullscreen lol
-                    
-                    if fullscreenStat == True:
-                         
-                            winMode = pygame.DOUBLEBUF | pygame.HWSURFACE
-                            display_width = 1200
-                            display_height = 800
-                            gameDisplay = pygame.display.set_mode((display_width, display_height),winMode)
-                            fullscreenStat = False
-                    else:
-                       
-                            winMode = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.FULLSCREEN #Set display variable to include fullscreen
-                            display_width = 1200
-                            display_height = 800
-                            gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #Generate new display fullscreen
-                            #player.reload()
-                            fullscreenStat = True
-        
-        if event.type == pygame.KEYUP: #When key is released
-            if event.key == pygame.K_a or event.key == pygame.K_d: #Stop rotation if A or D was released
-                    player.rot = 0
-            if event.key == pygame.K_w: #Stop accelerating if W is released
-                    player.adv = False
-            if event.key == pygame.K_s:
-                    player.decc = False
-        
+        for planet in testList:
 
-        #Allows a user to close the window using the close button
-        if event.type == pygame.QUIT:
-                gameOver = True
+            loop = True
+
+            while loop:
+
+                test1 = planet.posX > ranX - spread
+                test2 = planet.posX < ranX + spread
+
+                test3 = planet.posY > ranY - spread
+                test4 = planet.posY < ranY + spread
+
+                test5 = ranX > startW + spread
+                test6 = ranX < endW - spread
+
+                test7 = ranY > startH + spread
+                test8 = ranY < endW - spread
                 
-    #Undraw objects with black, call all update methods for objects
+                if (test1 and test2) and (test3 and test4):
+
+                    ranX = randint(startW,endW)
+                    ranY = randint(startH,endH)
+
+                else:
+
+                    loop = False
+                    
+        ranImg = choice(os.listdir("Planets/"))
+
+        print(ranImg)
+
+        r1 = randint(0,4)
+        r2 = randint(0,4)
+        r3 = randint(0,4)
+        r4 = randint(0,4)
+
+        sRan = randint(0,4)
+
+        if sRan == 4:
+
+            shopRan = True
+            r1=0
+            r2=0
+            r3=0
+            r4=0
+
+        else:
+
+            shopRan = False
+
+        planetID = NotAShip(ranX,ranY,ranImg,r1,r2,r3,r4,shopRan)
+
+        testList.append(planetID)
+
+        print(planetID.id)
+
+uniGraph = dict()
+fuelDis = 1000
+    
+                
+def universeGen(uniH,uniW,secPlanets,spread):
+
+    global universe, uniGraph, fuelDis, nodeList
+                
+    universeH = uniH
+    universeW = uniW
+
+    secNo = (universeH * universeW) / (display_height * display_width)
+
+    rowX = -universeW/2 
+    colY = -universeH/2
+
+    nodeList = list()
+
+    for column in range(universeH//display_height):
+        for row in range(universeW//display_width):
+            #if not((column==0 and row==0) or (abs(column)==1 and abs(row)==1)):
+                secGen(row*display_width+rowX,(row+1)*display_width+rowX,column*display_height+colY,(column+1)*display_height+colY,secPlanets,spread)
+    nodeID = 0
+    for planet in universe:
+
+        planetNode = "n" + str(planet.id)
+
+        planetNode = addNode(planetNode,planet.posX,planet.posY,"n" + str(planet.id))
+
+        nodeList.append(planetNode)
+
+    for node in nodeList:
+
+        adjList = list()
+
+        for planet2 in nodeList:
+
+            test = ((planet2.x - node.x)**2+(planet2.y-node.y)**2)**0.5 < fuelDis
+
+            if test:
+
+                adjList.append(planet2)
+                
+        uniGraph[node] = adjList
+
+def pathFind(target):
+
+    global universe, player, uniGraph, fuelDis, nodeList
+
+    addList = list()
+
+    for planet in universe:
+
+        if abs(planet.disX) < fuelDis and abs(planet.disY) < fuelDis:
+
+            addList.append(nodeList[planet.id])
+            
+    start = addNode("start",player.posX+1,player.posY+1,"start")
+
+    nodeList.append(start)
+
+    uniGraph[start] = addList
+
+    return aStar(uniGraph,start,nodeList[target])
+
+def automate(nodeL):
+
+    global nodeList, fuel, player, universe, display_height,display_width, prevNode, inventory, money, clock, FPS, mode
+
+    print(nodeL)
+
+    while len(nodeL)> 1:
+
+        currNode = universe[int(nodeL[-2][1:])]
+
+        print(currNode.id,currNode.posX,-currNode.posY)
+
+        targetDir = math.degrees(math.atan2(-currNode.posY-player.posY,currNode.posX-player.posX))-90
+
+        if targetDir < 0:
+
+            targetDir = 360+targetDir
+
+        while int(player.dir) != int(targetDir):
+
+            player.rot = -1
+
+            render()
+            cpuEvents()
+            if mode == "Player":
+
+                return
+            clock.tick(FPS)
+        
+        player.dir = targetDir
+
+        print(player.dir)
+        print(targetDir)
+
+        render()
+
+        player.rot=0
+
+        loop = True
+
+        player.adv = True
+
+        while loop:
+
+            dis = ((player.posX-currNode.posX)**2+(player.posY+currNode.posY)**2)**0.5
+
+            targetDir = math.degrees(math.atan2(-currNode.posY-player.posY,currNode.posX-player.posX))-90
+
+            if abs(targetDir-player.dir) > 0.1:
+
+                player.dir = targetDir
+
+            if dis < 50:
+
+                player.adv = False
+
+                player.accX = 0
+                player.accY = 0
+
+                loop = False
+
+                fuel = 100
+
+            render()
+
+            cpuEvents()
+
+            if mode == "Player":
+
+                return
+
+            clock.tick(FPS)
+
+        nodeL.pop(-2)
+
+        mine(currNode.n,currNode.b,currNode.p,currNode.f)
+
+        prevNode = currNode.id
+
+        if len(nodeL) == 1:
+
+            money = sellInventory(inventory,money)
+
+            return True
+
+        player.decc = False
+
+universeGen(10000,10000,1,200) #Universe Height, Width, Planet Density Factor, Spread
+
+prevNode = 0
+
+def cpuEvents():
+    global mode, display_width, display_height, winMode, gameDisplay, fullscreenStat
+
+    for event in pygame.event.get():
+
+            if event.type == pygame.KEYDOWN:
+        
+                if event.key == pygame.K_e:
+                            mode = "Player"
+                if event.key == pygame.K_ESCAPE:
+                        menuv2.pauseMenu()
+                if event.key == pygame.K_p: #P for fullscreen lol
+                        
+                        if fullscreenStat == True:
+                             
+                                winMode = pygame.DOUBLEBUF | pygame.HWSURFACE
+                                display_width = 1200
+                                display_height = 800
+                                gameDisplay = pygame.display.set_mode((display_width, display_height),winMode)
+                                fullscreenStat = False
+                        else:
+                           
+                                winMode = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.FULLSCREEN #Set display variable to include fullscreen
+                                display_width = 1200
+                                display_height = 800
+                                gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #Generate new display fullscreen
+                                #player.reload()
+                                fullscreenStat = True
+        
+        #Allows a user to close the window using the close button
+            if event.type == pygame.QUIT:
+                gameOver = True
+            
+
+def render():
+
+    global mode, prevNode, multi, ranNode, nodeList, nList, winMode, white, red, green, pblue, totalItems, money, black, shopNote, invred, invyellow, invgreen, invblue, gameDisplay, inMemory, memLimit, universe, fuel, display_width, display_height, inventory, texX, texY, texFuel, texSpeed, timeR, timeR2, timeF, timeF2, itemAmount, mineText, mineShow, invSize, invNote, gCredits, printList, alphaOrNumeric, clock, FPS
+   
     gameDisplay.fill(black)
 
-    if len(inMemory) > memLimit: #Check if memory limit exceeded, removed earliest entry in memory list if so
-                inMemory[0].inMem = False
-                inMemory[0].remove()
+    while nList == False:
 
+        ranNode = randint(0,len(nodeList)-1)
+
+        nList = pathFind(ranNode)
+        
+     
+    if len(nList)>1:
+
+        mulX = universe[int(nList[0][1:])].posX
+        mulY = -universe[int(nList[0][1:])].posY
+
+        if universe[int(nList[-2][1:])].inMem == False:
+
+            universe[int(nList[-2][1:])].inMem=True
+            inMemory.append(universe[int(nList[-2][1:])])
+            
+    else:
+
+        multi += 1
+        nList = False
+        mulX = "N/A"
+        mulY = ""
+
+    if universe[prevNode].inMem == False:
+
+            universe[prevNode].inMem=True
+            inMemory.append(universe[prevNode])
+
+        
+    if len(inMemory) > memLimit: #Check if memory limit exceeded, removed earliest entry in memory list if so
+
+               inMemory[0].inMem = False
+               inMemory.pop(0)
+                    
     for planet in inMemory: #Update all objects in memory
-            planet.update()
+            planet.update(True)
 
     for planet in universe: #Display any unloaded planet if within distance criteria and is not already in memory
-            if planet.disX < display_width*1.5 and planet.disX < display_width*-1.5 and planet.disY > display_height*1.5 and planet.disY < display_height*-1.5 and planet.inMem == False:
+            planet.update(False)
+            if (abs(player.posX-planet.posX) < display_width*0.6 and abs(player.posY-planet.posY) < display_height*0.6) and planet.inMem == False:
                     planet.inMem = True
-                    inMemory += planet
+                    inMemory.append(planet)
+            
 
     player.update() #Update player object
 
@@ -470,13 +728,14 @@ while not gameExit:
                 texFuel = 0
             else:
                 texFuel = round(fuel,2)
+                
     #stat bar
     statBar = pygame.Surface((display_width,36)) #Create a stats GUI bar as a surface
     statBar.set_alpha(200) #Make bar partly transparent                
     statBar.fill((20,50,150)) #Colour bar blue           
     gameDisplay.blit(statBar, (0,display_height-36)) #Render GUI bar at bottom of screen   
 
-    mergeSort(inventory)
+    #mergeSort(inventory)
 
     text = font.render("X: " + str(math.floor(texX)) + "        Y: " + str(math.floor(texY)) + "        Speed: " + str(texSpeed) + "km/s" + "        Credits: " + str(money) + "        Fuel:" + str(texFuel) + "%", 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
     textRect = text.get_rect()
@@ -491,10 +750,18 @@ while not gameExit:
     gameDisplay.blit(inventoryBar, (display_width*0.35,5)) #Render GUI bar at top of screen (previous entry said bottom of screen, despite position at top)
 
     if timeR < 60000:
-        timeR = pygame.time.get_ticks()
+        timeR = pygame.time.get_ticks() - timeR2
     else:
+        timeR2 = pygame.time.get_ticks()
         timeR = 0
         ranValue()
+        
+    if timeF < 2000:
+        timeF = pygame.time.get_ticks() - timeF2
+    else:
+        timeF2 = pygame.time.get_ticks()
+        timeF = 0
+        fuel -= 1
 
     #Item Icons (can replace with sprites later if so desired) future proofed in case of resolution manipulation
     invIcon1 = pygame.draw.polygon(gameDisplay, invyellow, (((display_width/2)-105, 10), ((display_width/2)-130, 35), ((display_width/2)-105, 60), ((display_width/2)-80, 35)))
@@ -556,7 +823,7 @@ while not gameExit:
 
         else:
 
-            mineText = "Sell or refuel here!"
+            mineText = "Sell minerals here!"
     elif fuel<25:
 
         mineText = "Warning: Low Fuel!"
@@ -583,6 +850,40 @@ while not gameExit:
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
         textRect.centery = (math.floor(125))
         gameDisplay.blit(text, textRect)
+        
+    mulBar = pygame.Surface((display_width*0.34,50)) 
+    mulBar.set_alpha(150) #Make bar partly transparent
+    mulBar.fill((20,50,150))          
+    gameDisplay.blit(mulBar, (0,25)) 
+
+    text = font.render("Multiplier at: " + str(mulX) + "," + str(mulY), 1, (100, 200, 255)) #Render GUI text, floor division used for variables for readability
+    textRect = text.get_rect()
+    textRect.centerx = (math.floor(display_width*0.17)) #Position text at bottom of page in center
+    textRect.centery = (math.floor(50))
+    gameDisplay.blit(text, textRect)
+
+    mul2Bar = pygame.Surface((display_width*0.05,50)) 
+    mul2Bar.set_alpha(150) #Make bar partly transparent
+    mul2Bar.fill((20,50,150))          
+    gameDisplay.blit(mul2Bar, (display_width*0.95,25)) 
+
+    text = font.render(str(multi) + "x", 1, (150,255,150)) #Render GUI text, floor division used for variables for readability
+    textRect = text.get_rect()
+    textRect.centerx = (math.floor(display_width*0.975)) #Position text at bottom of page in center
+    textRect.centery = (math.floor(50))
+    gameDisplay.blit(text, textRect)
+
+    modeBar = pygame.Surface((display_width*0.28,50)) 
+    modeBar.set_alpha(150) #Make bar partly transparent
+    modeBar.fill((20,50,150))          
+    gameDisplay.blit(modeBar, (display_width*0.66,25)) 
+
+    text = font.render("(E) Mode: " + mode, 1, (150,255,150)) #Render GUI text, floor division used for variables for readability
+    textRect = text.get_rect()
+    textRect.centerx = (math.floor(display_width*0.81)) #Position text at bottom of page in center
+    textRect.centery = (math.floor(50))
+    gameDisplay.blit(text, textRect)
+
 
     if fuel <= 0:
 
@@ -675,13 +976,85 @@ while not gameExit:
         textRect.centery = (math.floor(display_height*0.5+320))
         gameDisplay.blit(text, textRect)
 
-    mineShow = False
-    
-    #Update display
     pygame.display.update()
 
     #Clock ticks to run at FPS
+
+while not gameExit:
+
+    mineShow = False
+    
+    if gameOver == True:
+
+        #Finishes the game by printing to the console and ending the loop
+        print("GameOver")
+        gameExit = True
+
+    #Obtain all user events as a sequence and put them in a for loop
+    for event in pygame.event.get():
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_LCTRL] and pressed[pygame.K_m]: #if CTRL and M pressed...
+            menuv2.mainMenu() #...Go back to menu
+
+        if event.type == pygame.KEYDOWN: #When key is down
+            if event.key == pygame.K_a: #A button turns ship left
+                    player.rotL()
+            if event.key == pygame.K_d: #D button turns ship right
+                    player.rotR()
+            if event.key == pygame.K_w: #W accelerates the ship
+                    player.fwd()
+            if event.key == pygame.K_s:
+                    player.bwd()
+            if event.key == pygame.K_m:
+                        mine(mineArg[0],mineArg[1],mineArg[2],mineArg[3])
+                        mineText = "Press M to mine"
+            if event.key == pygame.K_e:
+                        mode = "CPU"
+            if event.key == pygame.K_ESCAPE:
+                    menuv2.pauseMenu()
+            if event.key == pygame.K_p: #P for fullscreen lol
+                    
+                    if fullscreenStat == True:
+                         
+                            winMode = pygame.DOUBLEBUF | pygame.HWSURFACE
+                            display_width = 1200
+                            display_height = 800
+                            gameDisplay = pygame.display.set_mode((display_width, display_height),winMode)
+                            fullscreenStat = False
+                    else:
+                       
+                            winMode = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.FULLSCREEN #Set display variable to include fullscreen
+                            display_width = 1200
+                            display_height = 800
+                            gameDisplay = pygame.display.set_mode((display_width, display_height),winMode) #Generate new display fullscreen
+                            #player.reload()
+                            fullscreenStat = True
+        
+        if event.type == pygame.KEYUP: #When key is released
+            if event.key == pygame.K_a or event.key == pygame.K_d: #Stop rotation if A or D was released
+                    player.rot = 0
+            if event.key == pygame.K_w: #Stop accelerating if W is released
+                    player.adv = False
+            if event.key == pygame.K_s:
+                    player.decc = False
+        
+
+        #Allows a user to close the window using the close button
+        if event.type == pygame.QUIT:
+                gameOver = True
+                
+    #Undraw objects with black, call all update methods for objects
+                
+    render()
+
     clock.tick(FPS)
+
+    if mode == "CPU" and nList != False and len(nList) > 1:
+
+        automate(nList)
+    
+    #Update display
+    
 
 #Close window, end game
 pygame.quit()
