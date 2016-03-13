@@ -663,10 +663,11 @@ def cpuEvents():
             if event.type == pygame.QUIT:
                 gameOver = True
             
+timeEnd = True
 
 def render():
 
-    global mode, prevNode, multi, ranNode, nodeList, nList, winMode, white, red, green, pblue, totalItems, money, black, shopNote, invred, invyellow, invgreen, invblue, gameDisplay, inMemory, memLimit, universe, fuel, display_width, display_height, inventory, texX, texY, texFuel, texSpeed, timeR, timeR2, timeF, timeF2, itemAmount, mineText, mineShow, invSize, invNote, gCredits, printList, alphaOrNumeric, clock, FPS
+    global endTime,endMin,endSec,timeStr,timeEnd,mode, prevNode, multi, ranNode, nodeList, nList, winMode, white, red, green, pblue, totalItems, money, black, shopNote, invred, invyellow, invgreen, invblue, gameDisplay, inMemory, memLimit, universe, fuel, display_width, display_height, inventory, texX, texY, texFuel, texSpeed, timeR, timeR2, timeF, timeF2, itemAmount, mineText, mineShow, invSize, invNote, gCredits, printList, alphaOrNumeric, clock, FPS
    
     gameDisplay.fill(black)
 
@@ -898,8 +899,21 @@ def render():
 
     if fuel <= 0:
 
+        if timeEnd:
+
+            endTime = pygame.time.get_ticks()//1000
+
+            endMin = endTime // 60
+
+            endSec = endTime - 60*endMin
+
+            timeEnd = False
+
+        timeStr = str(endMin).zfill(2) + ":" + str(endSec).zfill(2)
+
         player.accX = 0
         player.accY = 0
+        player.adv = False
         player.dir = 0
 
         loseBar = pygame.Surface((display_width*0.4,100)) 
@@ -951,6 +965,25 @@ def render():
 
         # Below is a visual representation of the sorted list above, orders based on whats in the list
         # Could have been a FOR loop but works so left for now
+
+        text = font.render("Total Credits: " + str(money), 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.3))
+        gameDisplay.blit(text, textRect)
+
+        text = font.render("Final Multiplier: " + str(multi) + "x", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.35))
+        gameDisplay.blit(text, textRect)
+
+        text = font.render("Time Elapsed: " + timeStr, 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        textRect = text.get_rect()
+        textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
+        textRect.centery = (math.floor(display_height*0.4))
+        gameDisplay.blit(text, textRect)
+        
         text = font.render("Total Items Collected", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
         textRect = text.get_rect()
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
