@@ -442,13 +442,11 @@ class npc():
 
                     mine(self.currNode.n,self.currNode.b,self.currNode.p,self.currNode.f,self.itemAmount,self.invSize,self.totalItems) #Mine automatically at the visited planet
 
-                    print(self.totalItems)
-
                     if len(self.nList) == 1:
                 
                         self.money = sellInventory(inventory,self.money,self.itemAmount,self.multi,self.invSize) #Automatically sell inventory if goal reached
 
-                        print("lol" + str(self.money))
+                        print(str(self.name) + " has earned " + str(self.money) + " credits!")
 
                         self.nList = False
             else:
