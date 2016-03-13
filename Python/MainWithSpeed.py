@@ -361,9 +361,9 @@ class NotAShip:
 
             pygame.Surface.convert(Object)
 
-            gameDisplay.blit(Object, (math.floor(self.disX+self.sW/3),math.floor(self.disY+self.sH/3))) #We use floor division as we cannot have fractional pixels
+            gameDisplay.blit(Object, (math.floor(self.disX+self.sW*0.38),math.floor(self.disY+self.sH*0.06))) #We use floor division as we cannot have fractional pixels
 
-            if abs(self.disX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/2-display_height/2) < 150:
+            if abs(self.posX+self.sW/2-display_width/2) < 150 and abs(self.disY+self.sH/2-display_height/2) < 150:
 
                 mineShow = True
                 fuel = 100
@@ -545,6 +545,11 @@ def automate(nodeL):
 
     print(nodeL)
 
+    player.accX = 0
+    player.accY = 0
+    player.adv = False
+    player.decc = False
+
     while len(nodeL)> 1:
 
         currNode = universe[int(nodeL[-2][1:])]
@@ -555,7 +560,7 @@ def automate(nodeL):
 
         if targetDir < 0:
 
-            targetDir = 360+targetDir
+            targetDir = targetDir + 360
 
         while int(player.dir) != int(targetDir):
 
@@ -587,11 +592,11 @@ def automate(nodeL):
 
             targetDir = math.degrees(math.atan2(-currNode.posY-player.posY,currNode.posX-player.posX))-90
 
-            if abs(targetDir-player.dir) > 0.1:
+            if abs(targetDir-player.dir) > 0:
 
                 player.dir = targetDir
 
-            if dis < 50:
+            if dis < 5:
 
                 player.adv = False
 
