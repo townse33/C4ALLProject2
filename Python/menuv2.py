@@ -78,7 +78,7 @@ def mainMenu():
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if option1.rect.collidepoint(pygame.mouse.get_pos()) == True:
-                            import MainWithSpeed
+                            import MainFinal
                         #elif option2.rect.collidepoint(pygame.mouse.get_pos()) == True:
                             #print(execfile("script2.py"))
                         else:
