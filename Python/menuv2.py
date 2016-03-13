@@ -69,7 +69,7 @@ def mainMenu():
     while loop == True:
         pygame.event.pump() #Internally process pygame vent handlers
         screen.blit(bg,(0, 0)) #Blits background to screen
-        screen.blit(title, (425, 15)) #Blits title to screen
+        screen.blit(title, (465, 15)) #Blits title to screen
 
         #if the mouse 'collides' with the text, hovered will be equal to True
         for option in option1, option2, option3:
@@ -95,7 +95,7 @@ def pauseMenu():
     while loop == True:
         pygame.event.pump()
         screen.blit(bg, (0,0))
-        screen.blit(title, (425,15))
+        screen.blit(title, (465,15))
 
         for option in option3, option4:
             if option.rect.collidepoint(pygame.mouse.get_pos()):
