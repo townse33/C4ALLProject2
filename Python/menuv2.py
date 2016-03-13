@@ -47,7 +47,7 @@ menu_font = pygame.font.Font(None, 40)
 title_font = pygame.font.Font(None, 80)
 
 #creates title
-title = title_font.render("VRBH GAME", True, (255, 255, 255))
+title = title_font.render("Star Hunt", True, (255, 255, 255))
 
 #calls the 'Option' class with three objects
 
