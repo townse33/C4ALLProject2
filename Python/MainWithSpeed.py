@@ -799,7 +799,47 @@ def render():
     textRect.centery = (math.floor(35))
     gameDisplay.blit(text, textRect)
 
-    if mineShow == True:
+    if mode == "Player":
+
+        if mineShow == True:
+
+            noteColour = (200, 160, 80)
+
+            fillColour = (20,50,150)
+
+            showBar = True
+
+            if invSize == 20:
+
+                mineText = "Inventory Full!"
+                
+            elif invNote == True and gCredits != 0:
+
+                mineText = "Gained " + str(gCredits) + " credits!"
+
+                noteColour = (150,255,150)
+                
+            elif not shopNote:
+
+                mineText = "Press M to mine"
+
+            else:
+
+                mineText = "Sell minerals here!"
+        elif fuel<25:
+
+            mineText = "Warning: Low Fuel!"
+
+            fillColour = (255,50,20)
+
+            noteColour = (200, 160, 80)
+
+            showBar = True
+
+        else:
+
+            showBar = False
+    else:
 
         noteColour = (200, 160, 80)
 
@@ -807,36 +847,7 @@ def render():
 
         showBar = True
 
-        if invSize == 20:
-
-            mineText = "Inventory Full!"
-            
-        elif invNote == True and gCredits != 0:
-
-            mineText = "Gained " + str(gCredits) + " credits!"
-
-            noteColour = (150,255,150)
-            
-        elif not shopNote:
-
-            mineText = "Press M to mine"
-
-        else:
-
-            mineText = "Sell minerals here!"
-    elif fuel<25:
-
-        mineText = "Warning: Low Fuel!"
-
-        fillColour = (255,50,20)
-
-        noteColour = (200, 160, 80)
-
-        showBar = True
-
-    else:
-
-        showBar = False
+        mineText = "Pathfinding..."
 
     if showBar:
         
