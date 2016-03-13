@@ -1,7 +1,6 @@
 import pygame, random, math, menuv2, os, sys
 from random import *
 from astar import *
-from generate import *
 
 #Importing all required libraries and files for the program
 
@@ -14,6 +13,7 @@ pygame.mixer.music.set_volume(0)#Volume
 pygame.mixer.music.play(-1)#This loops the song
 
 nList = False #Used to store the list of nodes calculated from the A* route globally
+npcList = list() #Stores all NPC objects in a list
 
 #Colour palette 
 white = (255,255,255)
@@ -21,6 +21,8 @@ black = (0,0,0)
 red = (255,0,0)
 green = (0,155,0)
 pblue = (0,0,255)
+
+npcNo = 20 # Number of NPCs to spawn
 
 mineShow = False #By default, do not show mining notification bar
 mineText = "Sell or refuel here!" #Default notification text
@@ -89,79 +91,90 @@ idCounter = 0 #Increments over planet instances as a naming convention
 
 multi = 1 #Default credit multiplier
 
-def sellInventory(modList, money):
+def sellInventory(modList, money,amountL = "",m="",iSize=""):
     global invSize, gCredits, multi
     """ Will output the amount of money gained from selling all the items
     as well as removing all the items sold from the inventory """
 
-    gCredits = 0
+    if amountL == "":
+        amountL = itemAmount
+        m = multi
+        iSize = invSize
+        gCredits = 0
     
     for i in modList: # Adds money, using the itemCost dictionary
-        money += itemCost[ i ] * itemAmount[ i ] * multi
-        gCredits += itemCost[ i ] * itemAmount[ i ] * multi
+        money += itemCost[ i ] * amountL[ i ] * m
+        if amountL == itemAmount:
+            gCredits += itemCost[ i ] * itemAmount[ i ] * m
         
-    itemAmount["nebulium"] = 0 #Defaults the dictionary amounts to 0, removing them from the inventory
-    itemAmount["bismuth"] = 0
-    itemAmount["polonium"] = 0
-    itemAmount["francium"] = 0
+    amountL["nebulium"] = 0 #Defaults the dictionary amounts to 0, removing them from the inventory
+    amountL["bismuth"] = 0
+    amountL["polonium"] = 0
+    amountL["francium"] = 0
 
-    invSize = 0
+    iSize = 0
     
     return(money)
 
     # Found that iterating over the list caused a problem with List Aliasing
     # and removing items from the list being iterated over
 
-def mine(n,b,p,f):
+def mine(n,b,p,f,amountL = "",iSize ="",tItems=""):
 
     """Takes 4 int arguments: the frequency of minerals on the planet to
     be mined. Randomly outputs collected mineral quantities, ensuring these
     are not over the inventory size limit of 20"""
 
-    global inventory, invSize
+    global inventory, invSize, itemAmount, totalItems
 
-    invSize = 0
+    if amountL == "":
 
-    for mineral in itemAmount:
+        amountL = itemAmount
+        iSize = invSize
+        tItems = totalItems
 
-        invSize += itemAmount[mineral] #Find inventory size by iteration
+    iSize = 0
+        
+    for mineral in amountL:
+
+        iSize += amountL[mineral] #Find inventory size by iteration
     
-    if invSize < 20:
+    if iSize < 20:
 
             neb = randint(0,n) #Randomly define output mineral quanities
             bis = randint(0,b)
             pol = randint(0,p)
             fra = randint(0,f)
 
-            itemAmount["nebulium"] += neb #Add these to the appropiate lists
-            itemAmount["bismuth"] += bis
-            itemAmount["polonium"] += pol
-            itemAmount["francium"] += fra
+            amountL["nebulium"] += neb #Add these to the appropiate lists
+            amountL["bismuth"] += bis
+            amountL["polonium"] += pol
+            amountL["francium"] += fra
 
-            totalItems["nebulium"] += neb
-            totalItems["bismuth"] += bis
-            totalItems["polonium"] += pol
-            totalItems["francium"] += fra
+            tItems["nebulium"] += neb
+            tItems["bismuth"] += bis
+            tItems["polonium"] += pol
+            tItems["francium"] += fra
 
-            invSize = 0
+            iSize = 0
 
-            for mineral in itemAmount: #Check inventory size again
+            for mineral in amountL: #Check inventory size again
 
-                invSize += itemAmount[mineral]
+                iSize += amountL[mineral]
 
-            while invSize > 20: #If size limit exceeded, randomly remove gained mineral
+            while iSize > 20: #If size limit exceeded, randomly remove gained mineral
 
                 ranMat = choice(inventory)
 
-                if itemAmount[ranMat] > 0:
+                if amountL[ranMat] > 0:
 
-                    itemAmount[ranMat] -= 1
+                    amountL[ranMat] -= 1
 
-                invSize = 0
+                iSize = 0
 
-                for mineral in itemAmount:
+                for mineral in amountL:
 
-                    invSize += itemAmount[mineral]
+                    iSize += amountL[mineral]
 
 def mergeSort(sortList):
     """ Will order the items of any imported list alphabetically, in ascending order"""
@@ -345,7 +358,115 @@ class SpaceObject:
                     mineArg = [self.n,self.b,self.p,self.f]
                     shopNote = False
                     invNote = False
-                    
+npcCounter = 0
+class npc():
+
+    def __init__(self,posX,posY,img="spaceship.png"):
+
+        global npcList, npcCounter
+
+        self.posX = posX
+        self.posY = posY
+        self.dir = randint(0,360)
+        self.velX = 0
+        self.velY = 0
+
+        self.img = img
+
+        self.money = 0
+        self.fuel = 100
+        self.multi = 1
+        self.itemAmount = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0}
+        self.invSize = 0
+        self.totalItems = {"nebulium":0, "bismuth":0, "polonium":0, "francium":0}
+
+        self.name = "NPC" + str(npcCounter)
+
+        npcCounter +=1
+
+        self.nList = False
+
+        npcList.append(self)
+
+    def update(self):
+
+        global nodeList, universe, inventory
+
+        while self.nList == False:
+
+            ranNode = randint(0,len(nodeList)-1)
+
+            self.nList = pathFind(ranNode)
+
+        if len(self.nList)> 1:
+
+            self.currNode = universe[int(self.nList[-2][1:])] #Finds the equivalent planet to the node given to the automation function
+
+            targetDir = math.degrees(math.atan2(self.currNode.posY+self.posY,self.currNode.posX-self.posX))-90
+
+            if targetDir < 0:
+
+                targetDir +=360
+
+            if abs(self.dir-targetDir)>1:
+
+                self.velX = 0
+                self.velY = 0
+
+                self.dir += 1
+
+                if self.dir > 360:
+
+                    self.dir = self.dir % 360
+
+                npcObject = pygame.transform.rotate(pygame.image.load(self.img),self.dir)
+
+                self.sW, self.sH = npcObject.get_size() 
+
+                gameDisplay.blit(npcObject, (self.posX-player.posX-self.sW*0.5,self.posY-self.sH*0.5+player.posY))
+
+                return
+            
+            self.dir = targetDir
+
+            dis = ((self.posX-self.currNode.posX)**2+(self.currNode.posY-self.posY)**2)**0.5 #Pythagoras to find distance to object
+
+
+            if dis < 500: #Consider a distance of 5 to the object as an acceptable range to stop
+
+                    self.velX = 0
+                    self.velY = 0
+                    self.fuel = 100
+
+                    self.nList.pop(-2) #Remove visited nodes
+
+                    mine(self.currNode.n,self.currNode.b,self.currNode.p,self.currNode.f,self.itemAmount,self.invSize,self.totalItems) #Mine automatically at the visited planet
+
+                    print(self.totalItems)
+
+                    if len(self.nList) == 1:
+                
+                        self.money = sellInventory(inventory,self.money,self.itemAmount,self.multi,self.invSize) #Automatically sell inventory if goal reached
+
+                        print("lol" + str(self.money))
+
+                        self.nList = False
+            else:
+
+                self.velX -= math.sin(math.radians(self.dir))*0.04 
+                self.velY -= math.sin(math.radians(90-self.dir))*0.04 
+
+                self.posX +=self.velX 
+                self.posY +=self.velY
+
+                npcObject = pygame.transform.rotate(pygame.image.load(self.img),self.dir)
+                self.sW, self.sH = npcObject.get_size() 
+                gameDisplay.blit(npcObject, (self.posX-player.posX-self.sW*0.5,self.posY+player.posY-self.sH*0.5))
+
+                self.fuel -=0.15
+
+                return
+            
 
 def ranValue(): #Randomise mineral values
     global inventory, itemCost
@@ -633,9 +754,15 @@ def cpuEvents():
                 
 timeEnd = True #used to prevent game timer continuing after gameover
 
+for nID in range(npcNo):
+
+    npcID = "npc" + str(nID)
+
+    npcID = npc(randint(-5000,5000),randint(-5000,5000))
+
 def render():
 
-    global endTime,endMin,endSec,timeStr,timeEnd,mode, prevNode, multi, ranNode, nodeList, nList, winMode, white, red, green, pblue, totalItems, money, black, shopNote, invred, invyellow, invgreen, invblue, gameDisplay, inMemory, memLimit, universe, fuel, display_width, display_height, inventory, texX, texY, texFuel, texSpeed, timeR, timeR2, timeF, timeF2, itemAmount, mineText, mineShow, invSize, invNote, gCredits, printList, alphaOrNumeric, clock, updateSpeed
+    global npc1,npcList,npcNo,endTime,endMin,endSec,timeStr,timeEnd,mode, prevNode, multi, ranNode, nodeList, nList, winMode, white, red, green, pblue, totalItems, money, black, shopNote, invred, invyellow, invgreen, invblue, gameDisplay, inMemory, memLimit, universe, fuel, display_width, display_height, inventory, texX, texY, texFuel, texSpeed, timeR, timeR2, timeF, timeF2, itemAmount, mineText, mineShow, invSize, invNote, gCredits, printList, alphaOrNumeric, clock, updateSpeed
     #Many variables are declared as global as it would not be feasible to pass all of these between the necessary functions
     #Fill unused space with black
     gameDisplay.fill(black)
@@ -648,7 +775,6 @@ def render():
         ranNode = randint(0,len(nodeList)-1)
 
         nList = pathFind(ranNode)
-        
      
     if len(nList)>1:
 
@@ -693,8 +819,11 @@ def render():
             if (abs(player.posX-planet.posX) < display_width*0.6 and abs(player.posY-planet.posY) < display_height*0.6) and planet.inMem == False:
                     planet.inMem = True
                     inMemory.append(planet)
-            
 
+    for npc in npcList:
+
+        npc.update()
+            
     player.update() #Update player object
 
     font = pygame.font.Font("trench.otf", 36) #Defines sci-fi font from external file
@@ -924,7 +1053,7 @@ def render():
         textRect.centery = (math.floor(display_height*0.5+50))
         gameDisplay.blit(text, textRect)
 
-        text = font.render("Press Esc to quit", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
+        text = font.render("(Q) Print Leaderboard (ESC) Quit", 1, (255, 255, 255)) #Render GUI text, floor division used for variables for readability
 
         textRect = text.get_rect()
         textRect.centerx = (math.floor(display_width*0.5)) #Position text at bottom of page in center
@@ -948,6 +1077,16 @@ def render():
                     elif alphaOrNumeric == False:
                         mergeSort(printList)
                         alphaOrNumeric = True
+                        
+                if event.key == pygame.K_q:
+                    gameDisplay.fill(black)
+                    unsortD = dict()
+                    for npc in npcList:
+                        unsortD[npc.money] = npc
+                    sortL = list(unsortD.keys())
+                    mergeSort(sortL)
+                    for money in sortL:
+                        print(str(unsortD[money].name) + ": " + str(money) +  " credits")
 
         #GameOver Stats
 
